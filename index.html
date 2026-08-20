@@ -138,7 +138,7 @@ html, body{height:100%;}
 body{
   margin:0; font-family:'Poppins',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   background:
-    linear-gradient(rgba(224,204,164,0.95),rgba(224,204,164,0.95)),
+    linear-gradient(rgba(224,204,164,0.55),rgba(224,204,164,0.55)),
     url("images/bg-mappa.jpg") center top/cover no-repeat;
   background-attachment:scroll, scroll;
   color:var(--ink); line-height:1.5; min-height:100%;
@@ -433,7 +433,7 @@ nav.nav-menu button.active{background:var(--accent); color:#fff;}
 footer{
   text-align:center; padding:28px 20px; color:var(--sub);
   background:
-    linear-gradient(rgba(251,247,240,0.90),rgba(251,247,240,0.94)),
+    linear-gradient(rgba(251,247,240,0.55),rgba(251,247,240,0.65)),
     url("images/rialto.jpg") center 30%/cover no-repeat;
   border-top:1px solid var(--line);
 }
@@ -641,11 +641,30 @@ footer a{color:var(--accent);}
 
 <section class="view" id="view-anwenden">
   <div class="card">
-    <h2>Anwenden</h2>
-    <p>Lückensätze aus bereits gelernten Sätzen — ergänze das fehlende Wort, bevor du die Lösung aufdeckst. Das ist
-    aktives Anwenden, nicht nur Wiedererkennen.</p>
+    <h2>Anwenden — jetzt wird's lebendig</h2>
+    <p>Der wichtigste Teil. Bau eigene Sätze, ergänze Lückensätze, beantworte Szenarien in eigenen Worten. Es gibt
+    keine automatische Korrektur — vergleiche deine Antwort ehrlich mit dem Beispiel und feile weiter. Sprich deine
+    Antwort laut aus, bevor du sie aufschreibst.</p>
   </div>
-  <div id="anwendenList"></div>
+  <div class="card">
+    <h3>Baustein-Sätze (Chunking)</h3>
+    <p class="small">Kombiniere Pronomen + Verb + Objekt/Ort zu eigenen, echten Sätzen. Wähle je eine Option und lies den Satz laut.</p>
+    <div class="filterbar">
+      <select id="chunkPron" onchange="renderChunkSentence()"></select>
+      <select id="chunkVerb" onchange="onChunkVerbChange()"></select>
+      <select id="chunkObj" onchange="renderChunkSentence()"></select>
+    </div>
+    <div class="card" id="chunkResult" style="margin-top:10px; margin-bottom:0;"></div>
+  </div>
+  <div class="card">
+    <h3>Lückensätze aus den Lektionen</h3>
+    <div id="anwendenList"></div>
+  </div>
+  <div class="card">
+    <h3>Freie Anwendung — schreib &amp; sprich</h3>
+    <p class="small">Das Wichtigste. Es gibt keine Korrektur durch das Programm — vergleiche deine Antwort ehrlich mit dem Beispiel.</p>
+    <div id="freePromptList"></div>
+  </div>
 </section>
 
 <section class="view" id="view-quiz">
@@ -737,7 +756,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.10.0</div>
+  <div class="version-tag">v0.12.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -1151,6 +1170,42 @@ const GAP_EXERCISES = [
  {it:"Questi pantaloni sono troppo ___.", answer:"stretti", de:"Diese Hose ist zu eng.", pron:"KWES-ti pan-ta-LO-ni SO-no TROP-po STRET-ti"},
  {it:"Il cielo è ___ oggi.", answer:"azzurro", de:"Der Himmel ist heute blau.", pron:"il CHE-lo e ad-DZUR-ro OD-dschi"},
  {it:"Ti amo con tutto il ___.", answer:"cuore", de:"Ich liebe dich von ganzem Herzen.", pron:"ti A-mo kon TUT-to il KWO-re"}
+];
+
+/* ===================== ANWENDEN: Baustein-Saetze (Chunking) ===================== */
+const CHUNK_PRONOUNS = [
+ {v:"io", label:"io (ich)"},
+ {v:"tu", label:"tu (du)"},
+ {v:"lui", label:"lui (er)"},
+ {v:"lei", label:"lei (sie)"},
+ {v:"noi", label:"noi (wir)"},
+ {v:"loro", label:"loro (sie, Pl.)"}
+];
+const CHUNK_VERBS = [
+ {label:"mangiare (essen)", de:"essen", forms:{io:"mangio", tu:"mangi", lui:"mangia", lei:"mangia", noi:"mangiamo", loro:"mangiano"},
+  objects:[{v:"la pasta", de:"die Pasta"},{v:"la pizza", de:"die Pizza"},{v:"il gelato", de:"das Eis"}]},
+ {label:"bere (trinken)", de:"trinken", forms:{io:"bevo", tu:"bevi", lui:"beve", lei:"beve", noi:"beviamo", loro:"bevono"},
+  objects:[{v:"un caffè", de:"einen Kaffee"},{v:"un'acqua", de:"ein Wasser"},{v:"un vino", de:"einen Wein"}]},
+ {label:"leggere (lesen)", de:"lesen", forms:{io:"leggo", tu:"leggi", lui:"legge", lei:"legge", noi:"leggiamo", loro:"leggono"},
+  objects:[{v:"un libro", de:"ein Buch"},{v:"il giornale", de:"die Zeitung"},{v:"una lettera", de:"einen Brief"}]},
+ {label:"parlare (sprechen)", de:"sprechen", forms:{io:"parlo", tu:"parli", lui:"parla", lei:"parla", noi:"parliamo", loro:"parlano"},
+  objects:[{v:"italiano", de:"Italienisch"},{v:"inglese", de:"Englisch"},{v:"tedesco", de:"Deutsch"}]},
+ {label:"vedere (sehen)", de:"sehen", forms:{io:"vedo", tu:"vedi", lui:"vede", lei:"vede", noi:"vediamo", loro:"vedono"},
+  objects:[{v:"un film", de:"einen Film"},{v:"la televisione", de:"fern"},{v:"un amico", de:"einen Freund"}]},
+ {label:"comprare (kaufen)", de:"kaufen", forms:{io:"compro", tu:"compri", lui:"compra", lei:"compra", noi:"compriamo", loro:"comprano"},
+  objects:[{v:"il pane", de:"das Brot"},{v:"i biglietti", de:"die Tickets"},{v:"un regalo", de:"ein Geschenk"}]}
+];
+
+/* ===================== ANWENDEN: Freie Anwendung ===================== */
+const FREE_PROMPTS = [
+ {prompt:"Stell dich auf Italienisch vor: Name, wie es dir geht, und was du gerade fühlst.", example:"Mi chiamo Anna. Sto bene, grazie. Sono felice oggi."},
+ {prompt:"Beschreibe deine Familie in 3 Sätzen: wie viele Geschwister du hast, wer dein/e Lieblings-Verwandte/r ist, und warum.", example:"Ho un fratello e una sorella. Il mio parente preferito è mia nonna, perché cucina benissimo."},
+ {prompt:"Du bist auf dem Markt: Frag nach dem Preis von etwas und handle um einen besseren Preis.", example:"Quanto costa questo formaggio? È troppo caro, può fare un prezzo migliore?"},
+ {prompt:"Bestell etwas in einem Restaurant: ein Gericht, ein Getränk, und frag nach der Rechnung.", example:"Vorrei la pasta al pomodoro e un'acqua frizzante, per favore. Il conto, per favore."},
+ {prompt:"Beschreibe den Weg von deinem Zuhause zum nächsten Supermarkt.", example:"Esci di casa, vai dritto, poi gira a destra. Il supermercato è vicino, a sinistra."},
+ {prompt:"Erzähl, wie das Wetter heute bei dir ist und was du deshalb anziehst.", example:"Oggi fa freddo e piove. Indosso una giacca e porto l'ombrello."},
+ {prompt:"Beschreibe dein Lieblingshobby und warum du es magst.", example:"Il mio hobby preferito è leggere. Mi piace perché è rilassante."},
+ {prompt:"Du triffst einen alten Freund zufällig auf der Straße — begrüße ihn und frag, wie es ihm geht.", example:"Ciao! Che sorpresa! Come stai? Non ti vedo da tanto tempo!"}
 ];
 
 /* ===================== GROSSE VOKABELBANK (unabhaengig von Lektionen) ===================== */
@@ -2909,8 +2964,11 @@ function renderLessonList(){
 function openLesson(id){
   const l = LESSONS.find(x=>x.id===id);
   if(!l) return;
+  const list = document.getElementById("lessonList");
   const detail = document.getElementById("lessonDetail");
+  list.style.display = "none";
   detail.innerHTML = `
+    <p><a href="#" onclick="event.preventDefault(); closeLesson();">← alle Lektionen</a></p>
     <div class="card">
       <h2>Lektion ${l.id}: ${l.title}</h2>
       <p class="small">${l.subtitle}</p>
@@ -2925,6 +2983,13 @@ function openLesson(id){
       <button onclick="markLessonDone(${l.id})">✅ Lektion als abgeschlossen markieren</button>
     </div>`;
   detail.scrollIntoView({behavior:"smooth"});
+}
+function closeLesson(){
+  const list = document.getElementById("lessonList");
+  const detail = document.getElementById("lessonDetail");
+  detail.innerHTML = "";
+  list.style.display = "";
+  list.scrollIntoView({behavior:"smooth"});
 }
 
 function markLessonDone(id){
@@ -3101,15 +3166,65 @@ function renderLieder(){
 /* ===================== ANWENDEN: Lückensätze ===================== */
 function renderAnwenden(){
   const box = document.getElementById("anwendenList");
+  if(box){
+    box.innerHTML = GAP_EXERCISES.map((ex,i)=>`
+      <div class="card exercise" id="gapEx${i}">
+        <div style="font-size:1.1rem; font-weight:700;">${ex.it}</div>
+        <div class="small" style="margin-top:4px;"><code>${ex.pron}</code></div>
+        <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
+          <button onclick="document.getElementById('gapEx${i}').classList.toggle('revealed')">Lösung zeigen</button>
+        </div>
+        <div class="answer"><b>${ex.answer}</b> — ${ex.de}</div>
+      </div>`).join("");
+  }
+  renderChunkOptions();
+  renderChunkSentence();
+  renderFreePrompts();
+}
+function renderChunkOptions(){
+  const pronSel = document.getElementById("chunkPron");
+  const verbSel = document.getElementById("chunkVerb");
+  if(!pronSel || pronSel.options.length) return;
+  pronSel.innerHTML = CHUNK_PRONOUNS.map(p=>`<option value="${p.v}">${p.label}</option>`).join("");
+  verbSel.innerHTML = CHUNK_VERBS.map((v,i)=>`<option value="${i}">${v.label}</option>`).join("");
+  renderChunkObjectOptions();
+}
+function renderChunkObjectOptions(){
+  const verbSel = document.getElementById("chunkVerb");
+  const objSel = document.getElementById("chunkObj");
+  if(!verbSel || !objSel) return;
+  const verb = CHUNK_VERBS[Number(verbSel.value)] || CHUNK_VERBS[0];
+  objSel.innerHTML = verb.objects.map(o=>`<option value="${o.v}">${o.v} (${o.de})</option>`).join("");
+}
+function onChunkVerbChange(){
+  renderChunkObjectOptions();
+  renderChunkSentence();
+}
+function renderChunkSentence(){
+  const pronSel = document.getElementById("chunkPron");
+  const verbSel = document.getElementById("chunkVerb");
+  const objSel = document.getElementById("chunkObj");
+  const result = document.getElementById("chunkResult");
+  if(!pronSel || !verbSel || !objSel || !result) return;
+  const pron = CHUNK_PRONOUNS.find(p=>p.v===pronSel.value) || CHUNK_PRONOUNS[0];
+  const verb = CHUNK_VERBS[Number(verbSel.value)] || CHUNK_VERBS[0];
+  const obj = verb.objects.find(o=>o.v===objSel.value) || verb.objects[0];
+  const verbForm = verb.forms[pron.v];
+  const sentence = `${pron.v} ${verbForm} ${obj.v}.`;
+  const pronDe = pron.label.match(/\(([^)]+)\)/)?.[1] || pron.v;
+  result.innerHTML = `<strong>Dein Satz:</strong> ${sentence} — „${pronDe} ${verb.de} ${obj.de}"`;
+}
+function renderFreePrompts(){
+  const box = document.getElementById("freePromptList");
   if(!box) return;
-  box.innerHTML = GAP_EXERCISES.map((ex,i)=>`
-    <div class="card exercise" id="gapEx${i}">
-      <div style="font-size:1.1rem; font-weight:700;">${ex.it}</div>
-      <div class="small" style="margin-top:4px;"><code>${ex.pron}</code></div>
+  box.innerHTML = FREE_PROMPTS.map((p,i)=>`
+    <div class="card exercise" id="freeEx${i}">
+      <div><b>${i+1}.</b> ${p.prompt}</div>
+      <textarea rows="3" placeholder="Schreib hier deine Antwort auf Italienisch…" style="width:100%; margin-top:8px; padding:10px; border-radius:8px; border:1px solid var(--line); font-family:inherit;"></textarea>
       <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
-        <button onclick="document.getElementById('gapEx${i}').classList.toggle('revealed')">Lösung zeigen</button>
+        <button onclick="document.getElementById('freeEx${i}').classList.toggle('revealed')">Beispiel anzeigen</button>
       </div>
-      <div class="answer"><b>${ex.answer}</b> — ${ex.de}</div>
+      <div class="answer">${p.example}</div>
     </div>`).join("");
 }
 
