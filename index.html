@@ -756,7 +756,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.13.0</div>
+  <div class="version-tag">v0.14.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -4862,7 +4862,7 @@ function renderAnwenden(){
   if(box){
     box.innerHTML = GAP_EXERCISES.map((ex,i)=>`
       <div class="card exercise" id="gapEx${i}">
-        <div style="font-size:1.1rem; font-weight:700;">${ex.it}</div>
+        <div style="font-size:1.1rem; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">${ex.it} ${speakBtnIt(ex.it.replace("___", ex.answer))}</div>
         <div class="small" style="margin-top:4px;"><code>${ex.pron}</code></div>
         <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
           <button onclick="document.getElementById('gapEx${i}').classList.toggle('revealed')">Lösung zeigen</button>
@@ -4905,7 +4905,7 @@ function renderChunkSentence(){
   const verbForm = verb.forms[pron.v];
   const sentence = `${pron.v} ${verbForm} ${obj.v}.`;
   const pronDe = pron.label.match(/\(([^)]+)\)/)?.[1] || pron.v;
-  result.innerHTML = `<strong>Dein Satz:</strong> ${sentence} — „${pronDe} ${verb.de} ${obj.de}"`;
+  result.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span><strong>Dein Satz:</strong> ${sentence}</span> ${speakBtnIt(sentence)}</div><div class="small" style="margin-top:4px;">„${pronDe} ${verb.de} ${obj.de}"</div>`;
 }
 function renderFreePrompts(){
   const box = document.getElementById("freePromptList");
@@ -4917,7 +4917,7 @@ function renderFreePrompts(){
       <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
         <button onclick="document.getElementById('freeEx${i}').classList.toggle('revealed')">Beispiel anzeigen</button>
       </div>
-      <div class="answer">${p.example}</div>
+      <div class="answer" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span>${p.example}</span> ${speakBtnIt(p.example)}</div>
     </div>`).join("");
 }
 
