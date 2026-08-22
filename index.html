@@ -608,7 +608,6 @@ footer a{color:var(--accent);}
   <div class="card">
     <h2>Wendungen</h2>
     <p>Nützliche Alltagsausdrücke, unabhängig von den Lektionen — zum Nachschlagen und Anhören.</p>
-    <div class="filterbar" id="wendungenFilter"></div>
   </div>
   <div id="wendungenList"></div>
 </section>
@@ -756,7 +755,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.14.0</div>
+  <div class="version-tag">v0.15.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -4814,28 +4813,31 @@ function setVocabBankCat(cat){
 }
 
 /* ===================== WENDUNGEN ===================== */
-let wendungenCat = "Alle";
+const WENDUNGEN_GROUPS = [
+  ["Saluti", "Saluti", "Begrüßungs- und Abschiedsfloskeln für den Alltag."],
+  ["Cortesia", "Cortesia", "Höfliche Ausdrücke für Bitte, Danke und Entschuldigung."],
+  ["Al ristorante", "Al ristorante", "Nützliche Sätze zum Essen bestellen und im Restaurant."],
+  ["In viaggio", "In viaggio", "Praktische Ausdrücke für unterwegs und auf Reisen."],
+  ["Emergenza", "Emergenza", "Wichtige Sätze für Notfälle und wenn du Hilfe brauchst."],
+  ["Espressioni comuni", "Espressioni comuni", "Häufige Ausdrücke, die dir im Alltag ständig begegnen."],
+];
 function renderWendungen(){
-  const cats = ["Alle", ...new Set(WENDUNGEN_DATA.map(w=>w.cat))];
-  const filterBox = document.getElementById("wendungenFilter");
-  if(filterBox){
-    filterBox.innerHTML = cats.map(c=>`<span class="pill" style="cursor:pointer; ${c===wendungenCat ? 'background:var(--accent); color:#fff;' : ''}" onclick="setWendungenCat('${c.replace(/'/g,"\\'")}')">${c}</span>`).join("");
-  }
   const list = document.getElementById("wendungenList");
   if(!list) return;
-  const items = wendungenCat==="Alle" ? WENDUNGEN_DATA : WENDUNGEN_DATA.filter(w=>w.cat===wendungenCat);
-  list.innerHTML = items.map(w=>`
-    <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-      <div>
-        <div style="font-size:1.1rem; font-weight:700;">${w.it} ${speakBtnIt(w.it)}</div>
-        <div class="small">${w.de} · <code>${w.pron}</code></div>
-      </div>
-      <span class="pill">${w.cat}</span>
-    </div>`).join("");
-}
-function setWendungenCat(cat){
-  wendungenCat = cat;
-  renderWendungen();
+  let html = "";
+  WENDUNGEN_GROUPS.forEach(([cat, label, desc])=>{
+    const items = WENDUNGEN_DATA.filter(w=>w.cat===cat);
+    if(items.length===0) return;
+    html += `<div class="card"><h3>${label} <span class="small">(${items.length})</span></h3><p class="small">${desc}</p>`;
+    items.forEach(w=>{
+      html += `<div class="line-block">
+        <div class="natural"><b>${w.it}</b> — ${w.de}</div>
+        <div class="pron">${speakBtnIt(w.it)} ${w.pron}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  list.innerHTML = html;
 }
 
 /* ===================== LIEDER ===================== */
