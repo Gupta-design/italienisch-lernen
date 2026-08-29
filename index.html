@@ -546,7 +546,7 @@ footer a{color:var(--accent);}
     dann natürlich übersetzen, aktiv hören, passiv hören und schließlich anwenden.</p>
     <p><strong>Hinweis:</strong> Alle 30 Lektionen sind da! Erstelle ein kostenloses Konto, um deinen Fortschritt
     zu speichern und an der Bestenliste teilzunehmen.</p>
-    <a href="#" onclick="event.preventDefault(); openLesson(1)" class="btn-primary">Direkt zu Lektion 1</a>
+    <a href="#" onclick="event.preventDefault(); goToLesson(1)" class="btn-primary">Direkt zu Lektion 1</a>
   </div>
   <div class="statgrid">
     <div class="stat"><div class="num">30</div><div class="lbl">Lektionen</div></div>
@@ -767,7 +767,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.17.1</div>
+  <div class="version-tag">v0.17.2</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -8844,6 +8844,11 @@ function renderLessonList(){
     </div>`).join("");
 }
 
+function goToLesson(id){
+  showView("lektionen");
+  const el = document.getElementById("view-lektionen");
+  if(el && el.classList.contains("active")) openLesson(id);
+}
 function openLesson(id){
   const l = LESSONS.find(x=>x.id===id);
   if(!l) return;
