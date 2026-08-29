@@ -291,6 +291,13 @@ table.gram th{background:var(--chip);}
 .exercise.revealed .answer{display:block;}
 .small{font-size:0.8rem; color:var(--sub);}
 .backlink{cursor:pointer; color:var(--accent3); font-weight:700; font-size:0.9rem;}
+.lesson-backlink{
+  display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+  color:var(--sub); background:rgba(255,255,255,0.7); border:1px solid var(--line);
+  padding:7px 14px; border-radius:20px; font-size:0.85rem; font-weight:600;
+  font-family:'Poppins',sans-serif; transition:.15s;
+}
+.lesson-backlink:hover{background:var(--chip); color:var(--accent); border-color:var(--accent);}
 footer.appfoot{text-align:center; color:var(--sub); font-size:0.8rem; padding:20px;}
 
 /* Registrierung / Profil */
@@ -760,7 +767,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.17.0</div>
+  <div class="version-tag">v0.17.1</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -8844,7 +8851,7 @@ function openLesson(id){
   const detail = document.getElementById("lessonDetail");
   list.style.display = "none";
   detail.innerHTML = `
-    <p><a href="#" onclick="event.preventDefault(); closeLesson();">← alle Lektionen</a></p>
+    <p><a href="#" class="lesson-backlink" onclick="event.preventDefault(); closeLesson();">← alle Lektionen</a></p>
     <div class="card">
       <h2>Lektion ${l.id}: ${l.title}</h2>
       <p class="small">${l.subtitle}</p>
