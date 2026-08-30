@@ -767,7 +767,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.19.0</div>
+  <div class="version-tag">v0.20.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -1217,7 +1217,107 @@ const FREE_PROMPTS = [
  {prompt:"Beschreibe den Weg von deinem Zuhause zum nächsten Supermarkt.", example:"Esci di casa, vai dritto, poi gira a destra. Il supermercato è vicino, a sinistra."},
  {prompt:"Erzähl, wie das Wetter heute bei dir ist und was du deshalb anziehst.", example:"Oggi fa freddo e piove. Indosso una giacca e porto l'ombrello."},
  {prompt:"Beschreibe dein Lieblingshobby und warum du es magst.", example:"Il mio hobby preferito è leggere. Mi piace perché è rilassante."},
- {prompt:"Du triffst einen alten Freund zufällig auf der Straße — begrüße ihn und frag, wie es ihm geht.", example:"Ciao! Che sorpresa! Come stai? Non ti vedo da tanto tempo!"}
+ {prompt:"Du triffst einen alten Freund zufällig auf der Straße — begrüße ihn und frag, wie es ihm geht.", example:"Ciao! Che sorpresa! Come stai? Non ti vedo da tanto tempo!"},
+ {prompt:"Beschreibe deinen Beruf und was dir daran gefällt.", example:"Sono insegnante. Lavoro in una scuola. Mi piace insegnare ai bambini."},
+ {prompt:"Beschreibe deinen typischen Tagesablauf von morgens bis abends.", example:"Mi sveglio alle sette. Faccio colazione e vado al lavoro. La sera guardo la televisione."},
+ {prompt:"Erzähl, was du dieses Wochenende vorhast.", example:"Questo weekend vado al mercato. Poi incontro degli amici. Domenica riposo a casa."},
+ {prompt:"Beschreibe deinen nächsten Urlaub: wohin du fährst und was du machst.", example:"Vado in Sicilia per due settimane. Voglio vedere il mare e mangiare cibo buono."},
+ {prompt:"Erzähl von deinem letzten Urlaub in der Vergangenheit.", example:"L'anno scorso sono andato in Toscana. Ho visitato tante città e ho mangiato benissimo."},
+ {prompt:"Beschreibe deine Wohnung: wie viele Zimmer, was dir gefällt.", example:"La mia casa ha tre stanze. C'è una cucina grande. Mi piace il mio balcone."},
+ {prompt:"Was möchtest du in den nächsten fünf Jahren erreichen?", example:"Tra cinque anni voglio parlare bene italiano. Voglio anche viaggiare di più."},
+ {prompt:"Du bist beim Arzt: beschreibe deine Symptome und frag um Rat.", example:"Dottore, ho mal di testa e sono stanco. Cosa devo fare?"},
+ {prompt:"Du bist in der Apotheke: erklär dein Problem und frag nach einem Medikament.", example:"Buongiorno, ho mal di gola. Avete qualcosa per il dolore?"},
+ {prompt:"Ruf einen Freund an und schlag ein Treffen für morgen vor.", example:"Ciao! Sei libero domani? Possiamo prendere un caffè insieme?"},
+ {prompt:"Reserviere telefonisch einen Tisch für vier Personen.", example:"Buonasera, vorrei prenotare un tavolo per quattro persone, per favore."},
+ {prompt:"Du checkst in ein Hotel ein: Name, Reservierung, Frage zum Zimmer.", example:"Buonasera, ho una prenotazione a nome Schmidt. La mia camera ha una vista sul mare?"},
+ {prompt:"Beschwere dich höflich über etwas im Hotel.", example:"Mi scusi, la camera è un po' rumorosa. È possibile cambiare stanza?"},
+ {prompt:"Du bist am Flughafen: sag, wohin du fliegst und frag nach dem Gate.", example:"Buongiorno, volo per Roma. A che ora è l'imbarco? Da quale porta?"},
+ {prompt:"Du bist am Bahnhof: kauf ein Ticket und frag nach dem Gleis.", example:"Un biglietto per Milano, per favore. Da quale binario parte il treno?"},
+ {prompt:"Bestell ein Taxi und gib die Adresse an.", example:"Buonasera, vorrei un taxi per Via Roma numero dieci, per favore."},
+ {prompt:"Du mietest ein Auto: frag nach Preis und Versicherung.", example:"Vorrei noleggiare una macchina per tre giorni. Quanto costa? È inclusa l'assicurazione?"},
+ {prompt:"Du bist bei der Bank: erklär, dass du ein Konto eröffnen möchtest.", example:"Buongiorno, vorrei aprire un conto corrente. Quali documenti servono?"},
+ {prompt:"Du bist auf der Post: erklär, dass du ein Paket verschicken möchtest.", example:"Buongiorno, vorrei spedire questo pacco in Germania. Quanto costa?"},
+ {prompt:"Du kaufst eine SIM-Karte: erklär, was du brauchst.", example:"Vorrei comprare una SIM con internet. Quale piano mi consiglia?"},
+ {prompt:"Du bist beim Friseur: beschreibe, wie du deine Haare geschnitten haben möchtest.", example:"Buongiorno, vorrei tagliare i capelli, non troppo corti, grazie."},
+ {prompt:"Du bist im Kleidungsgeschäft: frag nach einer anderen Größe.", example:"Scusi, avete questa maglietta in una taglia più grande?"},
+ {prompt:"Du reklamierst ein defektes Produkt im Geschäft.", example:"Buongiorno, questo prodotto è rotto. Vorrei un rimborso, per favore."},
+ {prompt:"Frag jemanden nach dem Weg zur nächsten Bushaltestelle.", example:"Scusi, dov'è la fermata dell'autobus più vicina? È lontano da qui?"},
+ {prompt:"Dein Koffer ist verloren gegangen: beschreib das Problem am Flughafen.", example:"Buongiorno, la mia valigia non è arrivata. È nera con una etichetta rossa."},
+ {prompt:"Du meldest einen Diebstahl bei der Polizei.", example:"Buongiorno, mi hanno rubato la borsa al mercato. Cosa devo fare?"},
+ {prompt:"Beschreib das Wetter der letzten Woche und deine Pläne dafür.", example:"La settimana scorsa ha fatto caldo. Sono andato al mare due volte."},
+ {prompt:"Beschreibe, wie du dich heute fühlst und warum.", example:"Oggi sono un po' stanco perché ho dormito poco. Ma sono contento di studiare italiano."},
+ {prompt:"Sag deine Meinung zu einem Film, den du gesehen hast.", example:"Ho visto un film italiano ieri. Era molto interessante e gli attori erano bravi."},
+ {prompt:"Empfehl einem Freund ein Buch und sag warum.", example:"Ti consiglio questo libro. È molto bello e la storia è emozionante."},
+ {prompt:"Beschreib deine Lieblingsmusik und wann du sie hörst.", example:"Mi piace la musica italiana. La ascolto quando cucino o guido la macchina."},
+ {prompt:"Erzähl, welchen Sport du treibst und wie oft.", example:"Gioco a calcio due volte a settimana. Mi tiene in forma e mi diverto."},
+ {prompt:"Erklär kurz, wie man ein einfaches Gericht kocht.", example:"Prima cuocio la pasta. Poi aggiungo il pomodoro e il basilico. È semplice e buono."},
+ {prompt:"Beschreib dein Lieblingsgericht und warum du es magst.", example:"Il mio piatto preferito è la pizza margherita. Mi piace perché è semplice e deliziosa."},
+ {prompt:"Lad einen Freund zu deiner Geburtstagsparty ein.", example:"Sabato è il mio compleanno. Faccio una festa a casa mia. Vieni anche tu?"},
+ {prompt:"Entschuldige dich bei einem Freund, weil du zu spät kommst.", example:"Mi dispiace, sono in ritardo. C'era molto traffico. Arrivo tra dieci minuti."},
+ {prompt:"Ein Freund ist gestresst — gib ihm einen Ratschlag.", example:"Devi riposare di più. Perché non fai una passeggiata nel parco?"},
+ {prompt:"Mach einem Freund ein Kompliment zu seinem neuen Haus.", example:"La tua nuova casa è bellissima! Mi piace molto il giardino."},
+ {prompt:"Erzähl etwas aus deiner Kindheit.", example:"Da bambino, giocavo sempre in giardino con mio fratello. Era un tempo felice."},
+ {prompt:"Beschreibe deinen Traumjob.", example:"Il mio lavoro ideale sarebbe scrittore. Potrei viaggiare e scrivere storie."},
+ {prompt:"Beschreib deine Nachbarn und wie ihr euch verhaltet.", example:"I miei vicini sono molto gentili. A volte prendiamo un caffè insieme."},
+ {prompt:"Stell dein Haustier vor (oder ein Wunschtier).", example:"Ho un gatto. Si chiama Leo ed è molto simpatico. Dorme tutto il giorno."},
+ {prompt:"Zwei Freunde streiten — schlichte den Streit.", example:"Ragazzi, calmatevi. Parliamo con calma e troviamo una soluzione insieme."},
+ {prompt:"Erzähl, was du heute in den Nachrichten gehört hast.", example:"Oggi ho letto le notizie. C'era un articolo interessante sull'ambiente."},
+ {prompt:"Sag höflich, dass du anderer Meinung bist.", example:"Capisco il tuo punto di vista, ma io penso diversamente. Per me è meglio così."},
+ {prompt:"Sag, was du für die Umwelt tust.", example:"Cerco di riciclare sempre e uso meno plastica. È importante per il futuro."},
+ {prompt:"Erzähl, wie oft du soziale Medien nutzt und warum.", example:"Uso i social media ogni giorno. Mi piace vedere le foto dei miei amici."},
+ {prompt:"Schlag einem Kollegen ein Kaffeetreffen vor.", example:"Hai tempo per un caffè più tardi? Vorrei parlare del progetto."},
+ {prompt:"Erzähl, warum du Italienisch lernst.", example:"Studio italiano perché voglio viaggiare in Italia. Mi piace molto la lingua."},
+ {prompt:"Beschreib, wie deine Stadt in zehn Jahren aussehen könnte.", example:"Tra dieci anni, la mia città sarà più verde. Ci saranno più biciclette e meno macchine."},
+ {prompt:"Erzähl von einer Reise, die dich sehr beeindruckt hat.", example:"Il viaggio più bello è stato a Venezia. I canali erano bellissimi e il cibo eccellente."},
+ {prompt:"Beschreib, was man auf einem Wochenmarkt kaufen kann.", example:"Al mercato si trovano frutta, verdura e formaggio fresco. Tutto è molto buono."},
+ {prompt:"Welche Filmgenres magst du und warum?", example:"Mi piacciono i film comici. Mi fanno ridere e sono un buon modo per rilassarmi."},
+ {prompt:"Plan eine Reise mit Freunden: wohin und was ihr macht.", example:"Andiamo a Firenze insieme. Visitiamo i musei e mangiamo in un buon ristorante."},
+ {prompt:"Beschreib, wie du dir deine Familie in Zukunft vorstellst.", example:"In futuro voglio avere una famiglia. Vorrei due figli e una casa grande."},
+ {prompt:"Beschwere dich höflich bei einem Nachbarn über Lärm.", example:"Mi scusi, potrebbe fare meno rumore? Domani devo lavorare presto."},
+ {prompt:"Erzähl von deiner Schulzeit: dein Lieblingsfach.", example:"A scuola, la mia materia preferita era la storia. Avevo un professore molto bravo."},
+ {prompt:"Was ist für dich wichtig in einer Freundschaft?", example:"Per me l'amicizia significa fiducia e rispetto. Un buon amico ascolta sempre."},
+ {prompt:"Beschreib, was du normalerweise isst, um gesund zu bleiben.", example:"Mangio molta frutta e verdura. Bevo tanta acqua e evito i dolci."},
+ {prompt:"Erzähl von einem Sportereignis, das du gesehen hast.", example:"Ieri ho guardato una partita di calcio in televisione. È stata molto emozionante."},
+ {prompt:"Erklär, wie du deine Lieblingsfeiertage feierst.", example:"A Natale, sto sempre con la famiglia. Mangiamo tanto e apriamo i regali insieme."},
+ {prompt:"Beschreib deinen typischen Sonntag.", example:"La domenica dormo fino a tardi. Poi faccio colazione con calma e leggo un libro."},
+ {prompt:"Was machst du am liebsten zu Hause?", example:"A casa, mi piace cucinare e guardare film. È il posto dove mi rilasso di più."},
+ {prompt:"Erzähl eine lustige Geschichte aus deinem Leben.", example:"Una volta ho perso il treno perché ho dormito troppo. È stato divertente dopo."},
+ {prompt:"Wie hat die Technologie dein Leben verändert?", example:"La tecnologia ha cambiato molto la mia vita. Ora lavoro spesso da casa."},
+ {prompt:"Was packst du normalerweise für eine Reise ein?", example:"Per un viaggio, porto sempre vestiti comodi, la macchina fotografica e un libro."},
+ {prompt:"Du bist beim Zahnarzt: beschreib dein Problem.", example:"Dottore, ho mal di denti da tre giorni. Può controllare, per favore?"},
+ {prompt:"Beschreib das typische Wetter in deiner Region.", example:"Nella mia regione, l'estate è calda e l'inverno è freddo. In primavera piove spesso."},
+ {prompt:"Erzähl von einem Umzug (real oder erfunden).", example:"L'anno scorso, mi sono trasferito in una nuova città. All'inizio era difficile, ma ora mi piace."},
+ {prompt:"Stell dich in einem Vorstellungsgespräch vor.", example:"Buongiorno, mi chiamo Marco. Ho tre anni di esperienza in questo settore."},
+ {prompt:"Erzähl, wie du deinen letzten Geburtstag gefeiert hast.", example:"Per il mio compleanno, ho organizzato una piccola festa. Sono venuti tutti i miei amici."},
+ {prompt:"Bedank dich bei jemandem für ein Geschenk.", example:"Grazie mille per il regalo! Mi piace moltissimo. Sei molto gentile."},
+ {prompt:"Beschreib, wie du dir deinen ersten Italienurlaub vorstellst.", example:"Il mio primo viaggio in Italia sarà a Roma. Voglio vedere il Colosseo e mangiare la pasta."},
+ {prompt:"Erzähl von jemandem, der dich inspiriert hat.", example:"La mia insegnante di italiano mi ha ispirato molto. È sempre paziente e simpatica."},
+ {prompt:"Beschreib deine Stadt für einen Touristen.", example:"La mia città è piccola ma bella. Ha un centro storico e un bel parco."},
+ {prompt:"Was machst du dieses Wochenende mit der Familie?", example:"Questo weekend andiamo al parco con i bambini. Poi mangiamo insieme a casa."},
+ {prompt:"Erzähl von einem lustigen Missverständnis.", example:"Una volta ho capito male una parola e ho ordinato la cosa sbagliata al ristorante!"},
+ {prompt:"Beschreib eine schwierige Entscheidung, die du getroffen hast.", example:"È stato difficile decidere di cambiare lavoro, ma alla fine sono stato contento."},
+ {prompt:"Welche gute Gewohnheit möchtest du entwickeln?", example:"Vorrei leggere di più ogni giorno. È un'abitudine molto positiva."},
+ {prompt:"Beschreib ein Hobby, das du sammelst oder ausübst.", example:"Colleziono cartoline da tutto il mondo. Ho più di cento cartoline a casa."},
+ {prompt:"Erzähl, ob du gerne Auto fährst und warum.", example:"Mi piace guidare la macchina, soprattutto sull'autostrada. È rilassante per me."},
+ {prompt:"Welche Jahreszeit magst du am liebsten und warum?", example:"La mia stagione preferita è l'autunno. Mi piacciono i colori delle foglie."},
+ {prompt:"Beschreib deine Traumreise, die du eines Tages machen möchtest.", example:"Il mio sogno è visitare il Giappone. Voglio vedere i templi e mangiare sushi."},
+ {prompt:"Erzähl von einem guten Rat, den dir jemand gegeben hat.", example:"Mio padre mi ha detto di essere sempre paziente. Questo consiglio mi aiuta molto."},
+ {prompt:"Welche neue Fähigkeit möchtest du lernen?", example:"Vorrei imparare a suonare la chitarra. Penso che sia molto interessante."},
+ {prompt:"Beschreib deinen perfekten Tag von Anfang bis Ende.", example:"Il mio giorno perfetto inizia con una passeggiata. Poi vedo gli amici e ceniamo insieme."},
+ {prompt:"Beschreib eine wichtige Person in deinem Leben.", example:"Mia nonna è molto importante per me. Mi ha insegnato tante cose belle della vita."},
+ {prompt:"Wenn du ein Kind unterrichten müsstest, welches Fach wäre es?", example:"Insegnerei matematica. Penso che sia utile e interessante per i bambini."},
+ {prompt:"Beschreib eine Herausforderung, die du kürzlich gemeistert hast.", example:"Recentemente ho imparato a cucinare un piatto difficile. È stato una bella sfida."},
+ {prompt:"Wie sollte ein guter Nachbar sein?", example:"Un buon vicino è gentile e rispettoso. Aiuta quando c'è bisogno."},
+ {prompt:"Plan ein romantisches Date.", example:"Ti va di andare a cena venerdì sera? Conosco un ristorante molto carino."},
+ {prompt:"Beschwere dich am Telefon über einen falschen Rechnungsbetrag.", example:"Buongiorno, penso che ci sia un errore nella fattura. Può controllare, per favore?"},
+ {prompt:"Du bist im Geschäft und suchst ein Geschenk für einen Freund.", example:"Cerco un regalo per un amico. Gli piace la musica. Cosa mi consiglia?"},
+ {prompt:"Was bevorzugst du: Stadt oder Land? Warum?", example:"Preferisco vivere in campagna. È più tranquillo e c'è più natura."},
+ {prompt:"Plane einen Filmabend mit Freunden.", example:"Stasera guardiamo un film a casa mia. Porto i popcorn, tu porti le bevande?"},
+ {prompt:"Entschuldige dich bei deinem Chef für einen Fehler.", example:"Mi scusi per l'errore. Non succederà di nuovo. Ho già corretto il problema."},
+ {prompt:"Du kaufst Blumen für einen besonderen Anlass.", example:"Vorrei un mazzo di fiori per un compleanno. Qualcosa di colorato, per favore."},
+ {prompt:"Beschreib eine Wanderung, die du gemacht hast oder machen möchtest.", example:"Ho fatto un'escursione in montagna. Il panorama era fantastico e l'aria era pulita."},
+ {prompt:"Was wolltest du als Kind werden?", example:"Da bambino, volevo diventare astronauta. Sognavo di andare nello spazio."},
+ {prompt:"Erzähl von einer neuen Kultur, die du kennengelernt hast.", example:"L'anno scorso ho conosciuto la cultura giapponese. È stato molto interessante e diverso."},
 ];
 
 /* ===================== GROSSE VOKABELBANK (unabhaengig von Lektionen) ===================== */
@@ -8896,6 +8996,114 @@ const AUDIO_MAP = {
 "loro comprano il pane.":"e29f857cb9c6ab82.mp3",
 "loro comprano i biglietti.":"4237cff68ff08786.mp3",
 "loro comprano un regalo.":"30842be6d12deece.mp3",
+"Mi chiamo Anna. Sto bene, grazie. Sono felice oggi.":"d9ffb1a4ce02e858.mp3",
+"Ho un fratello e una sorella. Il mio parente preferito è mia nonna, perché cucina benissimo.":"eb8655480517cc70.mp3",
+"Quanto costa questo formaggio? È troppo caro, può fare un prezzo migliore?":"e81cc0f2763b6110.mp3",
+"Vorrei la pasta al pomodoro e un'acqua frizzante, per favore. Il conto, per favore.":"cb730a6e31bd6fa3.mp3",
+"Esci di casa, vai dritto, poi gira a destra. Il supermercato è vicino, a sinistra.":"f2f17cbe9ccb1dfa.mp3",
+"Oggi fa freddo e piove. Indosso una giacca e porto l'ombrello.":"671c93bc8e1c1848.mp3",
+"Il mio hobby preferito è leggere. Mi piace perché è rilassante.":"597c61b9113df9ee.mp3",
+"Ciao! Che sorpresa! Come stai? Non ti vedo da tanto tempo!":"6b36330013923ce5.mp3",
+"Sono insegnante. Lavoro in una scuola. Mi piace insegnare ai bambini.":"e033ec824d070bea.mp3",
+"Mi sveglio alle sette. Faccio colazione e vado al lavoro. La sera guardo la televisione.":"a7971cdcb0f4ef82.mp3",
+"Questo weekend vado al mercato. Poi incontro degli amici. Domenica riposo a casa.":"afed5b563b85a970.mp3",
+"Vado in Sicilia per due settimane. Voglio vedere il mare e mangiare cibo buono.":"050ab4f5d87a5a7c.mp3",
+"L'anno scorso sono andato in Toscana. Ho visitato tante città e ho mangiato benissimo.":"c1ceef233e274116.mp3",
+"La mia casa ha tre stanze. C'è una cucina grande. Mi piace il mio balcone.":"4d9a5504e8937ba6.mp3",
+"Tra cinque anni voglio parlare bene italiano. Voglio anche viaggiare di più.":"ec287f4e293bb038.mp3",
+"Dottore, ho mal di testa e sono stanco. Cosa devo fare?":"59dff14eb88c7c60.mp3",
+"Buongiorno, ho mal di gola. Avete qualcosa per il dolore?":"6bd4cad74a828824.mp3",
+"Ciao! Sei libero domani? Possiamo prendere un caffè insieme?":"8891049d4f0fd6ee.mp3",
+"Buonasera, vorrei prenotare un tavolo per quattro persone, per favore.":"8214b152716633a7.mp3",
+"Buonasera, ho una prenotazione a nome Schmidt. La mia camera ha una vista sul mare?":"02a438c0c35ce70a.mp3",
+"Mi scusi, la camera è un po' rumorosa. È possibile cambiare stanza?":"760ae7bd0334729f.mp3",
+"Buongiorno, volo per Roma. A che ora è l'imbarco? Da quale porta?":"872f09bda729d124.mp3",
+"Un biglietto per Milano, per favore. Da quale binario parte il treno?":"2e27693687b2c64e.mp3",
+"Buonasera, vorrei un taxi per Via Roma numero dieci, per favore.":"21081c95b40b3c26.mp3",
+"Vorrei noleggiare una macchina per tre giorni. Quanto costa? È inclusa l'assicurazione?":"dfc0c4e966983bc9.mp3",
+"Buongiorno, vorrei aprire un conto corrente. Quali documenti servono?":"460f02cdced19a4a.mp3",
+"Buongiorno, vorrei spedire questo pacco in Germania. Quanto costa?":"e9e68914ae809974.mp3",
+"Vorrei comprare una SIM con internet. Quale piano mi consiglia?":"d200138219681fd9.mp3",
+"Buongiorno, vorrei tagliare i capelli, non troppo corti, grazie.":"8934fa0c65b72b99.mp3",
+"Scusi, avete questa maglietta in una taglia più grande?":"e9a44dd4c980773c.mp3",
+"Buongiorno, questo prodotto è rotto. Vorrei un rimborso, per favore.":"1445d39a659f3873.mp3",
+"Scusi, dov'è la fermata dell'autobus più vicina? È lontano da qui?":"9f05d8aac5b8f67b.mp3",
+"Buongiorno, la mia valigia non è arrivata. È nera con una etichetta rossa.":"62e64ae3ee963228.mp3",
+"Buongiorno, mi hanno rubato la borsa al mercato. Cosa devo fare?":"6519f96ea8ab91a1.mp3",
+"La settimana scorsa ha fatto caldo. Sono andato al mare due volte.":"0fc4fc7df8595f49.mp3",
+"Oggi sono un po' stanco perché ho dormito poco. Ma sono contento di studiare italiano.":"086c7c92e953adc6.mp3",
+"Ho visto un film italiano ieri. Era molto interessante e gli attori erano bravi.":"5aaa344c4815f6c6.mp3",
+"Ti consiglio questo libro. È molto bello e la storia è emozionante.":"61f62867ce4ac1ef.mp3",
+"Mi piace la musica italiana. La ascolto quando cucino o guido la macchina.":"a2fc3e86fd172466.mp3",
+"Gioco a calcio due volte a settimana. Mi tiene in forma e mi diverto.":"66510e361917c0ef.mp3",
+"Prima cuocio la pasta. Poi aggiungo il pomodoro e il basilico. È semplice e buono.":"c8e0b9cf8f0d8df6.mp3",
+"Il mio piatto preferito è la pizza margherita. Mi piace perché è semplice e deliziosa.":"b89814569090e1a6.mp3",
+"Sabato è il mio compleanno. Faccio una festa a casa mia. Vieni anche tu?":"5a6dd8e53ba0f8de.mp3",
+"Mi dispiace, sono in ritardo. C'era molto traffico. Arrivo tra dieci minuti.":"c371dae788c68e36.mp3",
+"Devi riposare di più. Perché non fai una passeggiata nel parco?":"14049fb3b23d0af0.mp3",
+"La tua nuova casa è bellissima! Mi piace molto il giardino.":"31a56d33f0cc3cac.mp3",
+"Da bambino, giocavo sempre in giardino con mio fratello. Era un tempo felice.":"27c4c08ffe92bfcb.mp3",
+"Il mio lavoro ideale sarebbe scrittore. Potrei viaggiare e scrivere storie.":"5f3b773fc22ad210.mp3",
+"I miei vicini sono molto gentili. A volte prendiamo un caffè insieme.":"ce1966bc62423cfc.mp3",
+"Ho un gatto. Si chiama Leo ed è molto simpatico. Dorme tutto il giorno.":"1fc264460714c23f.mp3",
+"Ragazzi, calmatevi. Parliamo con calma e troviamo una soluzione insieme.":"e4c8bebc900f5c68.mp3",
+"Oggi ho letto le notizie. C'era un articolo interessante sull'ambiente.":"52eb7d7d13b77991.mp3",
+"Capisco il tuo punto di vista, ma io penso diversamente. Per me è meglio così.":"1d1a809ced7f352c.mp3",
+"Cerco di riciclare sempre e uso meno plastica. È importante per il futuro.":"936f937c30040ff0.mp3",
+"Uso i social media ogni giorno. Mi piace vedere le foto dei miei amici.":"5bd88ce9c267cba5.mp3",
+"Hai tempo per un caffè più tardi? Vorrei parlare del progetto.":"27f8acaaf90dc515.mp3",
+"Studio italiano perché voglio viaggiare in Italia. Mi piace molto la lingua.":"349c7493f85bb5b1.mp3",
+"Tra dieci anni, la mia città sarà più verde. Ci saranno più biciclette e meno macchine.":"900be29eef51d7c8.mp3",
+"Il viaggio più bello è stato a Venezia. I canali erano bellissimi e il cibo eccellente.":"156f1db3566f866c.mp3",
+"Al mercato si trovano frutta, verdura e formaggio fresco. Tutto è molto buono.":"c090ae8390efd18c.mp3",
+"Mi piacciono i film comici. Mi fanno ridere e sono un buon modo per rilassarmi.":"22b587b9b5e355a3.mp3",
+"Andiamo a Firenze insieme. Visitiamo i musei e mangiamo in un buon ristorante.":"5d8b7033789bf52c.mp3",
+"In futuro voglio avere una famiglia. Vorrei due figli e una casa grande.":"e7943ef06c20ceb7.mp3",
+"Mi scusi, potrebbe fare meno rumore? Domani devo lavorare presto.":"c29f20f963539868.mp3",
+"A scuola, la mia materia preferita era la storia. Avevo un professore molto bravo.":"44060f45cdfbdf76.mp3",
+"Per me l'amicizia significa fiducia e rispetto. Un buon amico ascolta sempre.":"768701ceca20dc90.mp3",
+"Mangio molta frutta e verdura. Bevo tanta acqua e evito i dolci.":"88e097fcc5bd6b62.mp3",
+"Ieri ho guardato una partita di calcio in televisione. È stata molto emozionante.":"098b09ac17ada9ef.mp3",
+"A Natale, sto sempre con la famiglia. Mangiamo tanto e apriamo i regali insieme.":"0136632efec29b22.mp3",
+"La domenica dormo fino a tardi. Poi faccio colazione con calma e leggo un libro.":"b06f7f45915a1f33.mp3",
+"A casa, mi piace cucinare e guardare film. È il posto dove mi rilasso di più.":"d89dedc400622f81.mp3",
+"Una volta ho perso il treno perché ho dormito troppo. È stato divertente dopo.":"3652a7e1dbd160bb.mp3",
+"La tecnologia ha cambiato molto la mia vita. Ora lavoro spesso da casa.":"2de5a0fe68d49a2b.mp3",
+"Per un viaggio, porto sempre vestiti comodi, la macchina fotografica e un libro.":"d7f97a7fd9f80af3.mp3",
+"Dottore, ho mal di denti da tre giorni. Può controllare, per favore?":"bb07fcff07dc5f6a.mp3",
+"Nella mia regione, l'estate è calda e l'inverno è freddo. In primavera piove spesso.":"3e505b93d767b57c.mp3",
+"L'anno scorso, mi sono trasferito in una nuova città. All'inizio era difficile, ma ora mi piace.":"84c71425361dfbcf.mp3",
+"Buongiorno, mi chiamo Marco. Ho tre anni di esperienza in questo settore.":"d7483412a723fd87.mp3",
+"Per il mio compleanno, ho organizzato una piccola festa. Sono venuti tutti i miei amici.":"d6d27ffa42c60df2.mp3",
+"Grazie mille per il regalo! Mi piace moltissimo. Sei molto gentile.":"c060991e37859812.mp3",
+"Il mio primo viaggio in Italia sarà a Roma. Voglio vedere il Colosseo e mangiare la pasta.":"40a6840714cbd027.mp3",
+"La mia insegnante di italiano mi ha ispirato molto. È sempre paziente e simpatica.":"f1d9e5be5d91758a.mp3",
+"La mia città è piccola ma bella. Ha un centro storico e un bel parco.":"5f064735f8d7f82d.mp3",
+"Questo weekend andiamo al parco con i bambini. Poi mangiamo insieme a casa.":"f0f606791293d37a.mp3",
+"Una volta ho capito male una parola e ho ordinato la cosa sbagliata al ristorante!":"11ff000110de7a86.mp3",
+"È stato difficile decidere di cambiare lavoro, ma alla fine sono stato contento.":"d209e6cd86283510.mp3",
+"Vorrei leggere di più ogni giorno. È un'abitudine molto positiva.":"aa7eb364c4db8211.mp3",
+"Colleziono cartoline da tutto il mondo. Ho più di cento cartoline a casa.":"7df4237126b32500.mp3",
+"Mi piace guidare la macchina, soprattutto sull'autostrada. È rilassante per me.":"6d9ff52d98d1a5d3.mp3",
+"La mia stagione preferita è l'autunno. Mi piacciono i colori delle foglie.":"331dfab2836b7f0a.mp3",
+"Il mio sogno è visitare il Giappone. Voglio vedere i templi e mangiare sushi.":"4f05ad20f8db4cdd.mp3",
+"Mio padre mi ha detto di essere sempre paziente. Questo consiglio mi aiuta molto.":"fe3af6189103665f.mp3",
+"Vorrei imparare a suonare la chitarra. Penso che sia molto interessante.":"df1835b723ab42eb.mp3",
+"Il mio giorno perfetto inizia con una passeggiata. Poi vedo gli amici e ceniamo insieme.":"dc96fabad6b15e35.mp3",
+"Mia nonna è molto importante per me. Mi ha insegnato tante cose belle della vita.":"459fa971af24c43f.mp3",
+"Insegnerei matematica. Penso che sia utile e interessante per i bambini.":"2b1874e59e8603bd.mp3",
+"Recentemente ho imparato a cucinare un piatto difficile. È stato una bella sfida.":"5c31c1ecaa2a6dc4.mp3",
+"Un buon vicino è gentile e rispettoso. Aiuta quando c'è bisogno.":"9f5b820498118abf.mp3",
+"Ti va di andare a cena venerdì sera? Conosco un ristorante molto carino.":"039926281401787d.mp3",
+"Buongiorno, penso che ci sia un errore nella fattura. Può controllare, per favore?":"04f0b4b751f127df.mp3",
+"Cerco un regalo per un amico. Gli piace la musica. Cosa mi consiglia?":"a966e62dddd7b92b.mp3",
+"Preferisco vivere in campagna. È più tranquillo e c'è più natura.":"ee65d633a1253f58.mp3",
+"Stasera guardiamo un film a casa mia. Porto i popcorn, tu porti le bevande?":"6bf5cfaa2a2c6274.mp3",
+"Mi scusi per l'errore. Non succederà di nuovo. Ho già corretto il problema.":"889ef329fbce5f6c.mp3",
+"Vorrei un mazzo di fiori per un compleanno. Qualcosa di colorato, per favore.":"f0fe84bf2772cb09.mp3",
+"Ho fatto un'escursione in montagna. Il panorama era fantastico e l'aria era pulita.":"fc0ab066a53a3efe.mp3",
+"Da bambino, volevo diventare astronauta. Sognavo di andare nello spazio.":"00b0036fcabe6c09.mp3",
+"L'anno scorso ho conosciuto la cultura giapponese. È stato molto interessante e diverso.":"6c6d94124f690673.mp3",
 };
 function playPregeneratedAudio(text, btnEl, onFail){
   if(!AUDIO_MAP || !AUDIO_MAP[text]) return false;
@@ -9213,18 +9421,48 @@ function renderChunkSentence(){
   const pronDe = pron.label.match(/\(([^)]+)\)/)?.[1] || pron.v;
   result.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span><strong>Dein Satz:</strong> ${sentence}</span> ${speakBtnIt(sentence)}</div><div class="small" style="margin-top:4px;">„${pronDe} ${verb.de} ${obj.de}"</div>`;
 }
+function freePromptsUnlockedCount(){
+  state.freePromptsUnlocked = state.freePromptsUnlocked || 1;
+  if(state.freePromptsUnlocked > FREE_PROMPTS.length) state.freePromptsUnlocked = FREE_PROMPTS.length;
+  return state.freePromptsUnlocked;
+}
+function revealFreePrompt(i){
+  state.freePromptsRevealed = state.freePromptsRevealed || {};
+  state.freePromptsRevealed[i] = true;
+  const unlocked = freePromptsUnlockedCount();
+  let shouldScroll = false;
+  if(i === unlocked - 1 && unlocked < FREE_PROMPTS.length){
+    state.freePromptsUnlocked = unlocked + 1;
+    shouldScroll = true;
+  }
+  saveState();
+  renderFreePrompts();
+  if(shouldScroll){
+    setTimeout(()=>{
+      const next = document.getElementById("freeEx"+(unlocked));
+      if(next) next.scrollIntoView({behavior:"smooth", block:"center"});
+    }, 50);
+  }
+}
 function renderFreePrompts(){
   const box = document.getElementById("freePromptList");
   if(!box) return;
-  box.innerHTML = FREE_PROMPTS.map((p,i)=>`
-    <div class="card exercise" id="freeEx${i}">
+  const unlocked = freePromptsUnlockedCount();
+  const revealed = state.freePromptsRevealed || {};
+  const progressHtml = `<p class="small" style="margin-bottom:10px;"><b>${unlocked} von ${FREE_PROMPTS.length}</b> Aufgaben freigeschaltet — schreib deine Antwort, dann klick auf "Beispiel anzeigen", um die nächste Aufgabe freizuschalten.</p>`;
+  const cardsHtml = FREE_PROMPTS.slice(0, unlocked).map((p,i)=>`
+    <div class="card exercise${revealed[i] ? " revealed" : ""}" id="freeEx${i}">
       <div><b>${i+1}.</b> ${p.prompt}</div>
       <textarea rows="3" placeholder="Schreib hier deine Antwort auf Italienisch…" style="width:100%; margin-top:8px; padding:10px; border-radius:8px; border:1px solid var(--line); font-family:inherit;"></textarea>
       <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
-        <button onclick="document.getElementById('freeEx${i}').classList.toggle('revealed')">Beispiel anzeigen</button>
+        <button onclick="revealFreePrompt(${i})">Beispiel anzeigen</button>
       </div>
       <div class="answer" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span>${p.example}</span> ${speakBtnIt(p.example)}</div>
     </div>`).join("");
+  const doneHtml = unlocked >= FREE_PROMPTS.length
+    ? `<div class="card" style="margin-top:10px; text-align:center;">🎉 Alle ${FREE_PROMPTS.length} Aufgaben freigeschaltet — weiter so!</div>`
+    : "";
+  box.innerHTML = progressHtml + cardsHtml + doneHtml;
 }
 
 /* ===================== QUIZ (endloses Kartendeck) ===================== */
