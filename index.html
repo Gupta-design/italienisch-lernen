@@ -767,7 +767,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.20.0</div>
+  <div class="version-tag">v0.21.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -9426,39 +9426,48 @@ function freePromptsUnlockedCount(){
   if(state.freePromptsUnlocked > FREE_PROMPTS.length) state.freePromptsUnlocked = FREE_PROMPTS.length;
   return state.freePromptsUnlocked;
 }
-function revealFreePrompt(i){
-  state.freePromptsRevealed = state.freePromptsRevealed || {};
-  state.freePromptsRevealed[i] = true;
+function freePromptWordsRevealed(i){
+  state.freePromptsWordProgress = state.freePromptsWordProgress || {};
+  return state.freePromptsWordProgress[i] || 0;
+}
+function revealNextFreePromptWord(i){
+  const words = FREE_PROMPTS[i].example.split(" ");
+  state.freePromptsWordProgress = state.freePromptsWordProgress || {};
+  const current = state.freePromptsWordProgress[i] || 0;
+  if(current < words.length) state.freePromptsWordProgress[i] = current + 1;
+  const newProgress = state.freePromptsWordProgress[i];
   const unlocked = freePromptsUnlockedCount();
-  let shouldScroll = false;
-  if(i === unlocked - 1 && unlocked < FREE_PROMPTS.length){
+  // Naechste Aufgabe erst freischalten, wenn das aktuelle Beispiel VOLLSTAENDIG aufgedeckt ist —
+  // kein automatischer Sprung/Scroll, die Seite bleibt einfach wie sie ist.
+  if(newProgress >= words.length && i === unlocked - 1 && unlocked < FREE_PROMPTS.length){
     state.freePromptsUnlocked = unlocked + 1;
-    shouldScroll = true;
   }
   saveState();
   renderFreePrompts();
-  if(shouldScroll){
-    setTimeout(()=>{
-      const next = document.getElementById("freeEx"+(unlocked));
-      if(next) next.scrollIntoView({behavior:"smooth", block:"center"});
-    }, 50);
-  }
 }
 function renderFreePrompts(){
   const box = document.getElementById("freePromptList");
   if(!box) return;
   const unlocked = freePromptsUnlockedCount();
-  const revealed = state.freePromptsRevealed || {};
-  const progressHtml = `<p class="small" style="margin-bottom:10px;"><b>${unlocked} von ${FREE_PROMPTS.length}</b> Aufgaben freigeschaltet — schreib deine Antwort, dann klick auf "Beispiel anzeigen", um die nächste Aufgabe freizuschalten.</p>`;
-  const cardsHtml = FREE_PROMPTS.slice(0, unlocked).map((p,i)=>`
-    <div class="card exercise${revealed[i] ? " revealed" : ""}" id="freeEx${i}">
+  const progressHtml = `<p class="small" style="margin-bottom:10px;"><b>${unlocked} von ${FREE_PROMPTS.length}</b> Aufgaben freigeschaltet — schreib deine Antwort, dann klick schrittweise auf "Beispiel anzeigen", um das Beispiel Wort für Wort aufzudecken. Erst wenn es komplett aufgedeckt ist, schaltet sich die nächste Aufgabe frei.</p>`;
+  const cardsHtml = FREE_PROMPTS.slice(0, unlocked).map((p,i)=>{
+    const words = p.example.split(" ");
+    const progress = freePromptWordsRevealed(i);
+    const fullyRevealed = progress >= words.length;
+    const shownText = progress > 0 ? words.slice(0, progress).join(" ") + (fullyRevealed ? "" : " …") : "";
+    const btnOrCheck = fullyRevealed
+      ? `<span class="small" style="color:var(--accent2); font-weight:700;">✓ vollständig aufgedeckt</span>`
+      : `<button onclick="revealNextFreePromptWord(${i})">${progress===0 ? "Beispiel anzeigen" : "Nächstes Wort"}</button>`;
+    return `
+    <div class="card exercise${progress>0 ? " revealed" : ""}" id="freeEx${i}">
       <div><b>${i+1}.</b> ${p.prompt}</div>
       <textarea rows="3" placeholder="Schreib hier deine Antwort auf Italienisch…" style="width:100%; margin-top:8px; padding:10px; border-radius:8px; border:1px solid var(--line); font-family:inherit;"></textarea>
       <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
-        <button onclick="revealFreePrompt(${i})">Beispiel anzeigen</button>
+        ${btnOrCheck}
       </div>
-      <div class="answer" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span>${p.example}</span> ${speakBtnIt(p.example)}</div>
-    </div>`).join("");
+      <div class="answer" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span>${shownText}</span> ${fullyRevealed ? speakBtnIt(p.example) : ""}</div>
+    </div>`;
+  }).join("");
   const doneHtml = unlocked >= FREE_PROMPTS.length
     ? `<div class="card" style="margin-top:10px; text-align:center;">🎉 Alle ${FREE_PROMPTS.length} Aufgaben freigeschaltet — weiter so!</div>`
     : "";
