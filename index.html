@@ -767,7 +767,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.17.2</div>
+  <div class="version-tag">v0.18.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -9505,5 +9505,14 @@ document.addEventListener("DOMContentLoaded", ()=>{
   renderProfileBadge();
   if(window.speechSynthesis) window.speechSynthesis.onvoiceschanged = ()=>{};
 });
+
+/* ============ PWA: Service Worker registrieren (fuer Offline-Nutzung & "Zum Home-Bildschirm") ============ */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {
+      /* z.B. lokal per file:// geoeffnet -> Service Worker nicht verfuegbar, kein Problem */
+    });
+  });
+}
 </script>
 </body></html>
