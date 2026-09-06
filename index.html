@@ -37,8 +37,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Italienisch lebendig lernen — inspiriert von Birkenbihl">
 <meta property="og:description" content="Italienisch spielerisch lernen: Vokabeln, Dialoge, Aussprache und Bestenliste — kostenlos starten.">
-<meta property="og:image" content="https://DEINE-NEUE-DOMAIN-HIER/og-image.jpg">
-<meta property="og:url" content="https://DEINE-NEUE-DOMAIN-HIER">
+<meta property="og:image" content="https://learnitalianlive.de/og-image.jpg">
+<meta property="og:url" content="https://learnitalianlive.de">
 <meta property="og:locale" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Italienisch lebendig lernen — inspiriert von Birkenbihl">
@@ -522,7 +522,7 @@ footer a{color:var(--accent);}
         <button class="action primary" onclick="firebaseSignUp()">Konto erstellen</button>
       </div>
       <span class="steplink" onclick="goToFbLogin()">Schon ein Konto? Anmelden</span> ·
-      <span class="steplink" onclick="closeRegOverlay()">Erst mal nur umsehen (als Gast)</span>
+      <span class="steplink" onclick="continueAsGuest()">Erst mal nur umsehen (als Gast)</span>
     </div>
     <div id="fbLoginStep" style="display:none;">
       <h2>Anmelden</h2>
@@ -806,7 +806,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.22.0</div>
+  <div class="version-tag">v0.23.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -4957,6 +4957,14 @@ function showRegOverlay(){
 }
 function hideRegOverlay(){ document.getElementById("regOverlay").classList.add("hidden"); }
 function closeRegOverlay(){ hideRegOverlay(); pendingView = null; }
+function isGuestMode(){ return sessionStorage.getItem("guestMode") === "1"; }
+function continueAsGuest(){
+  sessionStorage.setItem("guestMode", "1");
+  hideRegOverlay();
+  const target = pendingView;
+  pendingView = null;
+  if(target) showView(target);
+}
 function hideAllRegSteps(){
   ["fbSignupStep","fbLoginStep","fbVerifyStep"].forEach(id=>{
     const el = document.getElementById(id);
@@ -5111,7 +5119,7 @@ function renderProfileBadge(){
 function showView(name){
   if(GATED_VIEWS.includes(name)){
     const p = loadProfile();
-    if(!p || !p.confirmed){ pendingView = name; showRegOverlay(); return; }
+    if((!p || !p.confirmed) && !isGuestMode()){ pendingView = name; showRegOverlay(); return; }
   }
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const el = document.getElementById("view-"+name);
