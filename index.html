@@ -37,8 +37,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Italienisch lebendig lernen — inspiriert von Birkenbihl">
 <meta property="og:description" content="Italienisch spielerisch lernen: Vokabeln, Dialoge, Aussprache und Bestenliste — kostenlos starten.">
-<meta property="og:image" content="https://DEINE-NEUE-DOMAIN-HIER/og-image.jpg">
-<meta property="og:url" content="https://DEINE-NEUE-DOMAIN-HIER">
+<meta property="og:image" content="https://learnitalianlive.de/og-image.jpg">
+<meta property="og:url" content="https://learnitalianlive.de">
 <meta property="og:locale" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Italienisch lebendig lernen — inspiriert von Birkenbihl">
@@ -298,6 +298,45 @@ table.gram th{background:var(--chip);}
   font-family:'Poppins',sans-serif; transition:.15s;
 }
 .lesson-backlink:hover{background:var(--chip); color:var(--accent); border-color:var(--accent);}
+
+/* Satz bauen (Sentence Builder) */
+.sb-section{margin-top:16px;}
+.sb-section h3{margin:0 0 4px; font-family:'Fredoka',cursive; color:var(--accent2);}
+.sb-line-group{border-bottom:1px dashed var(--line); padding:14px 0;}
+.sb-line-group:last-child{border-bottom:none;}
+.sb-task{background:#f4efe3; border-radius:12px; padding:14px; margin:8px 0;}
+.sb-task.sb-done{background:#eaf5ec;}
+.sb-prompt{font-size:0.95rem; color:var(--ink); margin-bottom:10px;}
+.sb-dir{display:inline-block; background:var(--chip); color:var(--accent); font-weight:800; font-size:0.72rem; border-radius:20px; padding:2px 9px; margin-right:6px;}
+.sb-answer{display:flex; flex-wrap:wrap; gap:6px; min-height:34px; margin-bottom:10px;}
+.sb-slot{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:38px; height:30px; padding:0 8px; border-bottom:2px solid var(--accent3);
+  font-weight:700; color:var(--ink); background:rgba(255,255,255,0.5); border-radius:6px 6px 0 0;
+}
+.sb-slot.filled{background:#fff; border-bottom-color:var(--good);}
+.sb-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
+.sb-chip{
+  border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;
+  border-radius:20px; padding:6px 14px; font-size:0.9rem; font-weight:600;
+  font-family:'Poppins',sans-serif; transition:.12s;
+}
+.sb-chip:hover{background:var(--chip); border-color:var(--accent);}
+.sb-chip:active{transform:scale(0.95);}
+.sb-chip.playing{background:var(--accent3); color:#fff; border-color:var(--accent3);}
+.sb-chip.sb-wrong{animation:sbShake 0.35s;}
+@keyframes sbShake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-4px);}
+  75%{transform:translateX(4px);}
+}
+.sb-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.sb-btn-undo, .sb-btn-reset{
+  border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer;
+  border-radius:8px; padding:5px 12px; font-size:0.8rem; font-weight:600; font-family:'Poppins',sans-serif;
+}
+.sb-btn-undo:hover, .sb-btn-reset:hover{background:var(--chip);}
+.sb-check{color:var(--good); font-weight:800; font-size:0.85rem;}
 footer.appfoot{text-align:center; color:var(--sub); font-size:0.8rem; padding:20px;}
 
 /* Registrierung / Profil */
@@ -483,7 +522,7 @@ footer a{color:var(--accent);}
         <button class="action primary" onclick="firebaseSignUp()">Konto erstellen</button>
       </div>
       <span class="steplink" onclick="goToFbLogin()">Schon ein Konto? Anmelden</span> ·
-      <span class="steplink" onclick="closeRegOverlay()">Erst mal nur umsehen (als Gast)</span>
+      <span class="steplink" onclick="continueAsGuest()">Erst mal nur umsehen (als Gast)</span>
     </div>
     <div id="fbLoginStep" style="display:none;">
       <h2>Anmelden</h2>
@@ -767,7 +806,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.21.0</div>
+  <div class="version-tag">v0.24.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -4918,6 +4957,14 @@ function showRegOverlay(){
 }
 function hideRegOverlay(){ document.getElementById("regOverlay").classList.add("hidden"); }
 function closeRegOverlay(){ hideRegOverlay(); pendingView = null; }
+function isGuestMode(){ return sessionStorage.getItem("guestMode") === "1"; }
+function continueAsGuest(){
+  sessionStorage.setItem("guestMode", "1");
+  hideRegOverlay();
+  const target = pendingView;
+  pendingView = null;
+  if(target) showView(target);
+}
 function hideAllRegSteps(){
   ["fbSignupStep","fbLoginStep","fbVerifyStep"].forEach(id=>{
     const el = document.getElementById(id);
@@ -5072,7 +5119,7 @@ function renderProfileBadge(){
 function showView(name){
   if(GATED_VIEWS.includes(name)){
     const p = loadProfile();
-    if(!p || !p.confirmed){ pendingView = name; showRegOverlay(); return; }
+    if((!p || !p.confirmed) && !isGuestMode()){ pendingView = name; showRegOverlay(); return; }
   }
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const el = document.getElementById("view-"+name);
@@ -9104,10 +9151,225 @@ const AUDIO_MAP = {
 "Ho fatto un'escursione in montagna. Il panorama era fantastico e l'aria era pulita.":"fc0ab066a53a3efe.mp3",
 "Da bambino, volevo diventare astronauta. Sognavo di andare nello spazio.":"00b0036fcabe6c09.mp3",
 "L'anno scorso ho conosciuto la cultura giapponese. È stato molto interessante e diverso.":"6c6d94124f690673.mp3",
+"stai":"432545cecbd8ae01.mp3",
+"sto":"1c38a0a5beefc8c8.mp3",
+"ti":"e00fba6fedfb8a49.mp3",
+"chiami":"348331afcd166979.mp3",
+"mi":"29bfe372865737fe.mp3",
+"chiamo":"550a83477c1aec09.mp3",
+"anna":"a70f9e38ff015afa.mp3",
+"marco":"f5888d0bb58d6111.mp3",
+"di":"690382ddccb8abc7.mp3",
+"conoscerti":"c6543e0756563534.mp3",
+"questa":"c67863599641a76d.mp3",
+"è":"0a35e149dbbb2d10.mp3",
+"la":"c9089f3c9adaf018.mp3",
+"mia":"5102ecd3d47f6561.mp3",
+"ho":"b5d9b59113086d3f.mp3",
+"fratelli":"3a9c765a76273443.mp3",
+"una":"85758590dcd56f1d.mp3",
+"si":"ac5585d98646d255.mp3",
+"chiama":"fcbf75c149d785df.mp3",
+"laura":"680e89809965ec41.mp3",
+"lavora":"c89b28be17e368a7.mp3",
+"quanti":"dbd756e9efc02c47.mp3",
+"hai":"42810cb02db3bb2c.mp3",
+"ventidue":"622e00b13c2ec8f7.mp3",
+"che":"f81e986ee4c9f80d.mp3",
+"ore":"be98d2fda00d8768.mp3",
+"sono":"4179bfaf174de35a.mp3",
+"le":"d9180594744f870a.mp3",
+"mezza":"92d9e3cfcbf6b42c.mp3",
+"a":"0cc175b9c0f1b6a8.mp3",
+"inizia":"6180e8454c4f28ad.mp3",
+"il":"4605f628f91de21e.mp3",
+"film":"bdbd6db1d8cc09a9.mp3",
+"alle":"5d12b75cf29cfd72.mp3",
+"un":"0674272bac0715f8.mp3",
+"favore":"e3941a699a3b04f6.mp3",
+"consiglia":"f2f32eeb0f76c46c.mp3",
+"vorrei":"375ccac06259fc8b.mp3",
+"al":"97282b278e5d5186.mp3",
+"da":"5ca2aa845c8cd5ac.mp3",
+"frizzante":"a9ef061d2c8ad3bb.mp3",
+"era":"cf5c0a6a33f6f53b.mp3",
+"scusi":"014a8af9022bfc82.mp3",
+"dov'è":"e72cb427f7d7f616.mp3",
+"vada":"555b302a0da7fc60.mp3",
+"poi":"d6e1c05c8a81c2ae.mp3",
+"giri":"a95bc72cf82d4eaa.mp3",
+"destra":"2dc34addc9626566.mp3",
+"no":"7fa3b767c460b54a.mp3",
+"minuti":"50084e6b22affaec.mp3",
+"piedi":"9671bca785a78149.mp3",
+"solito":"be4ced52933d4c57.mp3",
+"faccio":"0e2c21c69590e815.mp3",
+"vado":"8a6ce43be46fcb79.mp3",
+"dormo":"b7e8163dfd71badb.mp3",
+"fino":"77e77c6a68857be6.mp3",
+"guardo":"6729fac5d36d76c5.mp3",
+"tv":"c9a1fdac6e082dd8.mp3",
+"leggo":"df9cb9da2b758e0d.mp3",
+"mele":"0d1079228d79c8d0.mp3",
+"po'":"c9239879d4609b88.mp3",
+"va":"43b1cc1db7be63d8.mp3",
+"ha":"925cc8d2953eba62.mp3",
+"bisogno":"8726092d8a5a8fdb.mp3",
+"fame":"f86f4786f77a482d.mp3",
+"mangiamo":"6dcc354030f0022f.mp3",
+"preferisci":"b558799d98d6f6b8.mp3",
+"vegetariana":"780472ca82092526.mp3",
+"mangio":"4b53558134154f12.mp3",
+"verdure":"d24a9564272ae700.mp3",
+"sete":"a7222f153e5c1450.mp3",
+"d'acqua":"37ccbfeaafb94777.mp3",
+"buon":"eea7810bcc1008c6.mp3",
+"appetito":"8a258b62b606ea0b.mp3",
+"tempo":"e34c64a05273012b.mp3",
+"fa":"89e6d2b383471fc3.mp3",
+"c'è":"8ef7c2941d78fe89.mp3",
+"ed":"b5f3729e5418905a.mp3",
+"pioverà":"c5f139b9366de9c8.mp3",
+"prendi":"9c74b95bf771dc0c.mp3",
+"nevica":"37625ca6a46eb461.mp3",
+"stamattina":"50bb99f5e79b98ac.mp3",
+"meglio":"ba38b075599aab20.mp3",
+"piano":"d113f1c3f9ed8019.mp3",
+"camera":"dd6d2dcc679d12b9.mp3",
+"puoi":"ccc4d51b811859d3.mp3",
+"piace":"2208597d26bd6719.mp3",
+"sentiti":"8fe6ae2ef97a6fac.mp3",
+"fai":"32ad2ddd45504852.mp3",
+"nel":"04302cff8599fa26.mp3",
+"esco":"f911dfc151a21b50.mp3",
+"i":"865c0c0b4ab0e063.mp3",
+"miei":"b939b38b8bdd9cf7.mp3",
+"amici":"f52585a71476d261.mp3",
+"vuoi":"7ad564d92464490f.mp3",
+"ci":"35ea51baf1fe7f01.mp3",
+"vediamo":"7bbe6f510ad3f43c.mp3",
+"vai":"6825e367626d14c6.mp3",
+"quest'anno":"c25e74533c1907e4.mp3",
+"settimane":"88a454d5ac6165b0.mp3",
+"fatto":"adeacd2682face49.mp3",
+"valigie":"c35bc72215353654.mp3",
+"parte":"4d2aa37ecdd52b89.mp3",
+"del":"d2bcc286168bf8e0.mp3",
+"mattino":"8560abf04e20ea09.mp3",
+"divertiti":"9c3a6136b8086625.mp3",
+"sentiamo":"95bf8257e2d0a50e.mp3",
+"torni":"b050cac47a1090e6.mp3",
+"domestico":"44d6d00e6a739c7a.mp3",
+"sì":"62d08c707c0569f0.mp3",
+"gatti":"dc01a09195966ddb.mp3",
+"rex":"6b4023d367b91c97.mp3",
+"porto":"71d6c631e36a3432.mp3",
+"piacciono":"83f1594399329d47.mp3",
+"cavalli":"cafb718411530415.mp3",
+"andiamo":"a4e186fd975c8020.mp3",
+"allo":"ce92c299bb5d344b.mp3",
+"qual":"effd905c7d6961e2.mp3",
+"amo":"3d5390642ff7a7fd.mp3",
+"venezia":"b0c399e7c5ef981b.mp3",
+"suoi":"e10c2ac2f7938e25.mp3",
+"canali":"61e9835cd18ccaba.mp3",
+"costiera":"13e667ba6852a646.mp3",
+"amalfitana":"a946d809104dbb26.mp3",
+"bellissima":"d4e4201ef183b430.mp3",
+"roma":"2e92d188dbdbd88e.mp3",
+"montagne":"affd388f7a145391.mp3",
+"spettacolari":"2c548b5c4d263b14.mp3",
+"magnifica":"687407ee446466e1.mp3",
+"vieni":"9d2f88b12c6242ab.mp3",
+"prendo":"b3e02a4dcadf30b3.mp3",
+"comprato":"826dc08a433c0725.mp3",
+"nuova":"9dc2a2d735787566.mp3",
+"preferisco":"96c55de57a3b09ae.mp3",
+"bici":"6c15fdc981e4afc6.mp3",
+"arriva":"b467cbda88db8941.mp3",
+"perso":"0ab6ada4533ecdef.mp3",
+"un'insegnante":"d1424bc1e67b5753.mp3",
+"voglio":"4bad3da09eff406f.mp3",
+"non":"14b8f0494c6f1460.mp3",
+"sento":"6b0cdf854e2953f2.mp3",
+"mal":"749dfe7c0cd3b291.mp3",
+"questi":"b4d72385f0546cbf.mp3",
+"sintomi":"d8ce67c2d74da088.mp3",
+"deve":"547722212860dc70.mp3",
+"volte":"158be9fdb6cd5b3f.mp3",
+"spero":"f9c2c100d6b2995d.mp3",
+"regolarmente":"14f715749df621c8.mp3",
+"forza":"6d8c23a768aec9ee.mp3",
+"ce":"9b5394fd929896fb.mp3",
+"posso":"f24080c3aba66f16.mp3",
+"cabina":"e8b06afba2ce1144.mp3",
+"avete":"3fa5d09840586ba0.mp3",
+"stretti":"0633c167d99d49bb.mp3",
+"pago":"66d70610b684db4b.mp3",
+"tua":"550fdf7962b4316c.mp3",
+"rossa":"d852fe18e8ec3791.mp3",
+"lunghi":"5e03967deea8f3cf.mp3",
+"neri":"261245b1b722ca68.mp3",
+"azzurro":"950afdf4c7ebebd0.mp3",
+"piccola":"e8156213dc1f0669.mp3",
+"aver":"a70c993d481c091b.mp3",
+"mangiato":"0f79c4bb461159d5.mp3",
+"devo":"de0b09b19328c04a.mp3",
+"fisico":"27314ee70cb242c7.mp3",
+"prenditi":"8ff1622ab1d167ba.mp3",
+"cura":"6a618ea0f7ee3f41.mp3",
+"te":"569ef72642be0fad.mp3",
+"studi":"9368d53fe98b387e.mp3",
+"l'italiano":"e2a0ecbbeba7faf2.mp3",
+"studio":"c944634550c698fe.mp3",
+"mesi":"1392fa65931ea44d.mp3",
+"capisco":"1f79e42a3c5f87d3.mp3",
+"molti":"9965e4b71b9614a2.mp3",
+"errori":"7c2b56162f50fe31.mp3",
+"imparo":"23199a160705f236.mp3",
+"pratica":"38c9f0aeb5850166.mp3",
+"rende":"270ca2f004986b92.mp3",
+"perfetti":"54dd8f71c04dc7ac.mp3",
+"festeggi":"ec98bafe66f09e1f.mp3",
+"facciamo":"4b5b12ffe4e9dacf.mp3",
+"guardiamo":"ff7d96ae0903754c.mp3",
+"fuochi":"8d0ffde4d58a81ae.mp3",
+"d'artificio":"b703237a426e4332.mp3",
+"congratulazioni":"4955498e2ad6a6eb.mp3",
+"mandarmi":"e8eaf9b8ca4c498a.mp3",
+"poca":"c36e954f5bbe5fd8.mp3",
+"videochiamata":"c74fe02e444f507c.mp3",
+"stasera":"cfe5547fb85ed021.mp3",
+"dimenticato":"b3b20b3ba14cb463.mp3",
+"bancomat":"d98cad6d43ecc6d8.mp3",
+"dollari":"41a53ccc1f696889.mp3",
+"credito":"a1d23e6b7205bfa1.mp3",
+"chiamate":"a9d80686bfe2a204.mp3",
+"un'ambulanza":"a2204defab23b8e1.mp3",
+"stato":"e0b406f5f4190528.mp3",
+"vicina":"e7559713d507bc5e.mp3",
+"hanno":"1befb429823472d3.mp3",
+"rubato":"b41aa8f947da1eb9.mp3",
+"state":"9ed39e2ea931586b.mp3",
+"attenti":"e9f37fe3e1924f59.mp3",
+"piatti":"dd0f54a88512ce78.mp3",
+"bus":"d20f83ee6933aa1e.mp3",
+"siamo":"a98d506b4bc500cf.mp3",
+"conosciuti":"e4b25586d4e2f661.mp3",
+"all'università":"cfe2e0000eb1e0a0.mp3",
+"sposarmi":"d4927490ea64c8e4.mp3",
+"della":"f816b4bb5214d66f.mp3",
+"vita":"1116d70f3af1555d.mp3",
+"senti":"ae69fb0ad83721e9.mp3",
+"manchi":"8bf8e9fc35f3b50a.mp3",
+"andrà":"b049ff86090f9304.mp3",
+"così":"aa228627427958fc.mp3",
 };
 function playPregeneratedAudio(text, btnEl, onFail){
-  if(!AUDIO_MAP || !AUDIO_MAP[text]) return false;
-  const audio = new Audio("audio/" + AUDIO_MAP[text]);
+  if(!AUDIO_MAP) return false;
+  const key = AUDIO_MAP[text] ? text : (AUDIO_MAP[text.toLowerCase()] ? text.toLowerCase() : null);
+  if(!key) return false;
+  const audio = new Audio("audio/" + AUDIO_MAP[key]);
   let failed = false;
   const fail = ()=>{
     if(failed) return; // nur einmal auslösen (onerror + play().catch koennen beide feuern)
@@ -9150,6 +9412,162 @@ function speakBtnIt(text){
   return `<button class="speak-btn" title="Anhören (Italienisch)" onclick="event.stopPropagation(); speakIt('${safe}', this)">🔊</button>`;
 }
 
+/* ===================== SATZ BAUEN (Sentence Builder) ===================== */
+const SB_DECOY_COUNT = 4;
+let sbState = {};
+
+function sbNormWord(w){
+  return w.toLowerCase().replace(/^[„"“”'(]+/,'').replace(/[.,!?;:„"“”')]+$/,'');
+}
+function sbTokenize(text){
+  return (text||"").split(" ").filter(Boolean);
+}
+function sbCollectDecoyCandidates(l, lineIdx, dir, excludeWords){
+  const excludeNorm = new Set(excludeWords.map(sbNormWord));
+  const seenNorm = new Set();
+  const words = [];
+  l.lines.forEach((otherLine,i)=>{
+    if(i===lineIdx) return;
+    const t = dir==="toIt" ? otherLine.it : otherLine.natural;
+    sbTokenize(t).forEach(w=>{
+      const norm = sbNormWord(w);
+      if(!norm || excludeNorm.has(norm) || seenNorm.has(norm)) return;
+      seenNorm.add(norm);
+      words.push(w);
+    });
+  });
+  return words;
+}
+function sbTaskKey(lessonId, lineIdx, dir){
+  return lessonId+"_"+lineIdx+"_"+dir;
+}
+function sbTasksForLesson(l){
+  const tasks = [];
+  l.lines.forEach((line,i)=>{
+    tasks.push({lineIdx:i, dir:"toIt"});
+    tasks.push({lineIdx:i, dir:"toNat"});
+  });
+  return tasks;
+}
+function sbDoneMap(){
+  state.sbDone = state.sbDone || {};
+  return state.sbDone;
+}
+function sbDoneCount(l){
+  const map = sbDoneMap();
+  return sbTasksForLesson(l).filter(t=>map[sbTaskKey(l.id,t.lineIdx,t.dir)]).length;
+}
+function sbAllDone(l){
+  return sbDoneCount(l) === sbTasksForLesson(l).length;
+}
+function sbShuffled(n){
+  const arr = Array.from({length:n},(_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function sbGetState(lessonId, lineIdx, dir){
+  const key = sbTaskKey(lessonId, lineIdx, dir);
+  if(!sbState[key]){
+    const l = LESSONS.find(x=>x.id===lessonId);
+    const line = l.lines[lineIdx];
+    const targetWords = dir==="toIt" ? sbTokenize(line.it) : sbTokenize(line.natural);
+    const decoyPool = sbCollectDecoyCandidates(l, lineIdx, dir, targetWords);
+    const shuffledDecoys = decoyPool.sort(()=>Math.random()-0.5).slice(0, SB_DECOY_COUNT);
+    const items = [
+      ...targetWords.map((w,idx)=>({type:"real", idx, word:w})),
+      ...shuffledDecoys.map(w=>({type:"decoy", word:w}))
+    ];
+    const alreadyDone = !!sbDoneMap()[key];
+    sbState[key] = {
+      targetWords,
+      items,
+      pool: alreadyDone ? [] : sbShuffled(items.length),
+      answer: alreadyDone ? targetWords.map((_,idx)=>idx) : [],
+      wrongFlash: null
+    };
+  }
+  return sbState[key];
+}
+function sbPlace(lessonId, lineIdx, dir, itemIdx){
+  const st = sbGetState(lessonId, lineIdx, dir);
+  const it = st.items[itemIdx];
+  st.wrongFlash = null;
+  if(it.type==="real" && it.idx === st.answer.length){
+    st.answer.push(itemIdx);
+    const pos = st.pool.indexOf(itemIdx);
+    if(pos!==-1) st.pool.splice(pos,1);
+    if(st.answer.length === st.targetWords.length){
+      sbDoneMap()[sbTaskKey(lessonId,lineIdx,dir)] = true;
+      saveState();
+    }
+  } else {
+    st.wrongFlash = itemIdx;
+  }
+  openLesson(lessonId, {scroll:false});
+}
+function sbUndo(lessonId, lineIdx, dir){
+  const st = sbGetState(lessonId, lineIdx, dir);
+  if(st.answer.length===0) return;
+  const idx = st.answer.pop();
+  st.pool.push(idx);
+  delete sbDoneMap()[sbTaskKey(lessonId,lineIdx,dir)];
+  saveState();
+  openLesson(lessonId, {scroll:false});
+}
+function sbReset(lessonId, lineIdx, dir){
+  delete sbState[sbTaskKey(lessonId,lineIdx,dir)];
+  delete sbDoneMap()[sbTaskKey(lessonId,lineIdx,dir)];
+  saveState();
+  openLesson(lessonId, {scroll:false});
+}
+function speakSbWord(text, dir, btnEl){
+  if(dir==="toIt") speakIt(text, btnEl); else speakDe(text, btnEl);
+}
+function renderSentenceBuilder(l){
+  const sections = l.lines.map((line, lineIdx)=>{
+    const tasksHtml = ["toIt","toNat"].map(dir=>{
+      const st = sbGetState(l.id, lineIdx, dir);
+      const prompt = dir==="toIt" ? line.natural : line.it;
+      const promptLabel = dir==="toIt" ? "🇩🇪 → 🇮🇹" : "🇮🇹 → 🇩🇪";
+      const done = st.answer.length === st.targetWords.length;
+      const answerHtml = st.targetWords.map((w,i)=>{
+        const itemIdx = st.answer[i];
+        const filled = itemIdx!==undefined;
+        const label = filled ? st.items[itemIdx].word : "";
+        return `<span class="sb-slot ${filled?'filled':''}">${label||"&nbsp;"}</span>`;
+      }).join(" ");
+      const poolHtml = st.pool.map(itemIdx=>{
+        const it = st.items[itemIdx];
+        const label = it.word;
+        const spoken = label.replace(/^[„"“”'(]+/,'').replace(/[.,!?;:„"“”')]+$/,'').replace(/'/g,"\\'");
+        const wrong = st.wrongFlash===itemIdx ? " sb-wrong" : "";
+        return `<button type="button" class="sb-chip${wrong}" onclick="event.stopPropagation(); speakSbWord('${spoken}','${dir}',this); sbPlace(${l.id},${lineIdx},'${dir}',${itemIdx})">${label}</button>`;
+      }).join("");
+      return `
+        <div class="sb-task ${done?'sb-done':''}">
+          <div class="sb-prompt"><span class="sb-dir">${promptLabel}</span> ${prompt}</div>
+          <div class="sb-answer">${answerHtml}</div>
+          <div class="sb-pool">${poolHtml}</div>
+          <div class="sb-actions">
+            <button type="button" class="sb-btn-undo" onclick="sbUndo(${l.id},${lineIdx},'${dir}')">↩ Zurück</button>
+            <button type="button" class="sb-btn-reset" onclick="sbReset(${l.id},${lineIdx},'${dir}')">🔄 Neu mischen</button>
+            ${done ? '<span class="sb-check">✅ Richtig!</span>' : ''}
+          </div>
+        </div>`;
+    }).join("");
+    return `<div class="sb-line-group">${tasksHtml}</div>`;
+  }).join("");
+  return `
+    <div class="card sb-section">
+      <h3>🧩 Satz bauen</h3>
+      <p class="small">Baue die Sätze aus den Wort-Bausteinen zusammen. Tippe auf ein Wort, um es zu hören.</p>
+      ${sections}
+    </div>`;
+}
+
 /* ===================== LEKTIONEN RENDERN ===================== */
 function renderLessonList(){
   const box = document.getElementById("lessonList");
@@ -9165,12 +9583,16 @@ function goToLesson(id){
   const el = document.getElementById("view-lektionen");
   if(el && el.classList.contains("active")) openLesson(id);
 }
-function openLesson(id){
+function openLesson(id, opts){
+  const scroll = !opts || opts.scroll !== false;
   const l = LESSONS.find(x=>x.id===id);
   if(!l) return;
   const list = document.getElementById("lessonList");
   const detail = document.getElementById("lessonDetail");
   list.style.display = "none";
+  const allDone = sbAllDone(l);
+  const doneCount = sbDoneCount(l);
+  const totalTasks = sbTasksForLesson(l).length;
   detail.innerHTML = `
     <p><a href="#" class="lesson-backlink" onclick="event.preventDefault(); closeLesson();">← alle Lektionen</a></p>
     <div class="card">
@@ -9184,9 +9606,13 @@ function openLesson(id){
           <div class="pron-line">${speakBtnIt(line.it)} <code>${line.pron}</code></div>
           <div>→ ${line.natural}</div>
         </div>`).join("")}
-      <button onclick="markLessonDone(${l.id})">✅ Lektion als abgeschlossen markieren</button>
+    </div>
+    ${renderSentenceBuilder(l)}
+    <div class="card">
+      <button onclick="markLessonDone(${l.id})" ${allDone?'':'disabled title="Schließe zuerst alle Satz-bauen-Aufgaben ab"'}>✅ Lektion als abgeschlossen markieren</button>
+      ${!allDone ? `<p class="small">🧩 Noch ${totalTasks - doneCount} Satz-bauen-Aufgabe(n) offen (${doneCount}/${totalTasks})</p>` : ''}
     </div>`;
-  detail.scrollIntoView({behavior:"smooth"});
+  if(scroll) detail.scrollIntoView({behavior:"smooth"});
 }
 function closeLesson(){
   const list = document.getElementById("lessonList");
@@ -9197,6 +9623,11 @@ function closeLesson(){
 }
 
 function markLessonDone(id){
+  const l = LESSONS.find(x=>x.id===id);
+  if(l && !sbAllDone(l)){
+    alert("Bitte schließe zuerst alle Satz-bauen-Aufgaben dieser Lektion ab.");
+    return;
+  }
   touchDaily();
   touchStreak();
   state.lessonsDone = state.lessonsDone || {};
