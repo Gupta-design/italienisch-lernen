@@ -653,9 +653,38 @@ footer a{color:var(--accent);}
 <section class="view" id="view-wendungen">
   <div class="card">
     <h2>Wendungen</h2>
-    <p>Nützliche Alltagsausdrücke, unabhängig von den Lektionen — zum Nachschlagen und Anhören.</p>
+    <p>Nützliche Alltagsausdrücke, unabhängig von den Lektionen.</p>
+    <div class="btnrow" style="justify-content:flex-start;" id="wendModeBar">
+      <button class="action primary" data-wmode="karten" onclick="wendSetMode('karten')">🗂 Karten-Challenge</button>
+      <button class="action neutral" data-wmode="quiz" onclick="wendSetMode('quiz')">🧩 Quiz</button>
+      <button class="action neutral" data-wmode="liste" onclick="wendSetMode('liste')">📋 Liste</button>
+    </div>
+    <div class="filterbar" id="wendFilterBar">
+      <label class="small">Kategorie:
+        <select id="wendCatFilter" onchange="wendOnFilterChange()"></select>
+      </label>
+      <span class="small" id="wendProgressLabel"></span>
+    </div>
   </div>
-  <div id="wendungenList"></div>
+
+  <div id="wendKartenView" class="card" style="display:none;">
+    <div class="flash" id="wendFlashCard" onclick="wendFlipCard()">
+      <div class="front" id="wendFlashFront">–</div>
+      <div class="pron2" id="wendFlashPron"></div>
+      <div class="back" id="wendFlashBack"></div>
+      <div class="hint">antippen zum Umdrehen</div>
+    </div>
+    <div class="btnrow">
+      <button class="action neutral" onclick="wendPrevCard()">⬅ zurück</button>
+      <button class="action neutral" onclick="wendMarkCard('learning')">🔁 noch üben</button>
+      <button class="action good" onclick="wendMarkCard('known')">✅ kann ich</button>
+      <button class="action primary" onclick="wendNextCard()">weiter ➜</button>
+    </div>
+  </div>
+
+  <div id="wendQuizView" class="card" style="display:none;"></div>
+
+  <div id="wendungenList" style="display:none;"></div>
 </section>
 
 <section class="view" id="view-aussprache">
@@ -806,7 +835,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.25.0</div>
+  <div class="version-tag">v0.26.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -5127,7 +5156,7 @@ function showView(name){
   document.querySelectorAll(".nav-menu button").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
   if(name==="lektionen") renderLessonList();
   if(name==="wortschatz"){ renderFlashcards(); const c = document.getElementById("vocabBankCount"); if(c) c.textContent = VOCAB_BANK.length; }
-  if(name==="wendungen") renderWendungen();
+  if(name==="wendungen") wendInit();
   if(name==="lieder") renderLieder();
   if(name==="anwenden") renderAnwenden();
   if(name==="quiz") renderQuizView();
@@ -10275,6 +10304,214 @@ function renderWendungen(){
     html += `</div>`;
   });
   list.innerHTML = html;
+}
+
+/* ============ WENDUNGEN: Karten-Challenge + Quiz (statt reiner Leseliste) ============ */
+// Nutzt dieselbe Karteikarten-/Quiz-Mechanik wie der Wortschatz-Trainer und das Haupt-Quiz,
+// aber mit eigenem Deck/Fragenpool, der auf WENDUNGEN_DATA eingeschränkt ist. Fortschritt landet
+// im selben state.words wie überall sonst (markWord()).
+let wendMode = "karten";
+let wendDeck = [];
+let wendDeckIdx = 0;
+let wendQuizState = null;
+
+function wendPopulateCatFilter(){
+  const sel = document.getElementById("wendCatFilter");
+  if(!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = `<option value="alle">Alle Kategorien</option>` + WENDUNGEN_GROUPS.map(([cat,label])=>{
+    const n = WENDUNGEN_DATA.filter(w=>w.cat===cat).length;
+    if(n===0) return "";
+    return `<option value="${cat}">${label} (${n})</option>`;
+  }).join("");
+  if(prev && Array.from(sel.options).some(o=>o.value===prev)) sel.value = prev;
+}
+function wendCurrentCat(){
+  const sel = document.getElementById("wendCatFilter");
+  return sel ? sel.value : "alle";
+}
+function wendFilteredPool(){
+  const cat = wendCurrentCat();
+  return cat==="alle" ? WENDUNGEN_DATA.slice() : WENDUNGEN_DATA.filter(w=>w.cat===cat);
+}
+function wendUpdateProgressLabel(){
+  const el = document.getElementById("wendProgressLabel");
+  if(!el) return;
+  const pool = wendFilteredPool();
+  const known = pool.filter(w=>state.words && state.words[w.it]==="known").length;
+  el.textContent = pool.length ? `${known} von ${pool.length} bekannt` : "";
+}
+function wendSetMode(mode){
+  wendMode = mode;
+  document.querySelectorAll("#wendModeBar button").forEach(b=>{
+    b.classList.toggle("primary", b.dataset.wmode===mode);
+    b.classList.toggle("neutral", b.dataset.wmode!==mode);
+  });
+  document.getElementById("wendKartenView").style.display = mode==="karten" ? "" : "none";
+  document.getElementById("wendQuizView").style.display = mode==="quiz" ? "" : "none";
+  document.getElementById("wendungenList").style.display = mode==="liste" ? "" : "none";
+  document.getElementById("wendFilterBar").style.display = mode==="liste" ? "none" : "flex";
+  if(mode==="karten") wendRefreshDeck();
+  if(mode==="quiz") wendRenderQuizIntro();
+  if(mode==="liste") renderWendungen();
+}
+function wendOnFilterChange(){
+  wendUpdateProgressLabel();
+  if(wendMode==="karten") wendRefreshDeck();
+  if(wendMode==="quiz") wendRenderQuizIntro();
+}
+function wendInit(){
+  wendPopulateCatFilter();
+  wendUpdateProgressLabel();
+  wendSetMode(wendMode || "karten");
+}
+
+/* --- Karten-Challenge --- */
+function wendRefreshDeck(){
+  wendDeck = wendFilteredPool();
+  for(let i=wendDeck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [wendDeck[i],wendDeck[j]]=[wendDeck[j],wendDeck[i]]; }
+  wendDeckIdx = 0;
+  wendUpdateProgressLabel();
+  wendShowCard();
+}
+function wendShowCard(){
+  const card = document.getElementById("wendFlashCard");
+  if(!card) return;
+  card.classList.remove("flipped");
+  if(wendDeck.length===0){
+    document.getElementById("wendFlashFront").textContent = "🎉 Keine Karten in diesem Filter";
+    document.getElementById("wendFlashPron").innerHTML = "";
+    document.getElementById("wendFlashBack").innerHTML = "";
+    return;
+  }
+  const w = wendDeck[wendDeckIdx % wendDeck.length];
+  document.getElementById("wendFlashFront").textContent = w.it;
+  document.getElementById("wendFlashPron").innerHTML = speakBtnIt(w.it) + (w.pron ? " " + w.pron : "");
+  document.getElementById("wendFlashBack").innerHTML = `<div style="font-size:1.2rem; font-weight:700; color:var(--accent2)">${w.de}</div>`;
+}
+function wendFlipCard(){
+  document.getElementById("wendFlashCard").classList.toggle("flipped");
+}
+function wendMarkCard(status){
+  if(wendDeck.length===0) return;
+  const w = wendDeck[wendDeckIdx % wendDeck.length];
+  markWord(w.it, status);
+  wendNextCard();
+}
+function wendNextCard(){ wendDeckIdx++; wendShowCard(); wendUpdateProgressLabel(); }
+function wendPrevCard(){
+  if(wendDeck.length===0) return;
+  wendDeckIdx = (wendDeckIdx - 1 + wendDeck.length) % wendDeck.length;
+  wendShowCard();
+}
+
+/* --- Quiz-Modus: errate die richtige deutsche Übersetzung der Wendung --- */
+function wendBuildQuizCard(){
+  const pool = shuffleArr(wendFilteredPool());
+  const chosen = pool.slice(0, QUIZ_QUESTIONS_PER_CARD);
+  return chosen.map(item=>{
+    const sameCat = shuffleArr(WENDUNGEN_DATA.filter(w=>w.cat===item.cat && w.de!==item.de));
+    let wrongPool = sameCat;
+    if(wrongPool.length < 3){
+      wrongPool = wrongPool.concat(shuffleArr(WENDUNGEN_DATA.filter(w=>w.de!==item.de && !wrongPool.includes(w))));
+    }
+    const options = shuffleArr([item, ...wrongPool.slice(0,3)]);
+    return { prompt: item.it, answer: item.de, pron: item.pron, options: options.map(o=>o.de) };
+  }).filter(q=>q.options.length>=2);
+}
+function wendRenderQuizIntro(){
+  const el = document.getElementById("wendQuizView");
+  if(!el) return;
+  wendQuizState = null;
+  const pool = wendFilteredPool();
+  if(pool.length < 4){
+    el.innerHTML = `<p class="small">Wähle eine Kategorie mit mehr Einträgen, um das Quiz zu starten.</p>`;
+    return;
+  }
+  el.innerHTML = `<div class="card" style="padding:0;">
+    <p>Ein fortlaufendes Karten-Deck: 6 Fragen pro Karte. Errate die richtige Übersetzung jeder Wendung.</p>
+    <button class="action primary" onclick="wendStartQuiz()">Karte 1 ziehen 🧩</button>
+  </div>`;
+}
+function wendStartQuiz(){
+  const cardQuestions = wendBuildQuizCard();
+  if(cardQuestions.length===0){ wendRenderQuizIntro(); return; }
+  wendQuizState = { cardNum:1, questions:cardQuestions, idx:0, correctCount:0, sessionCorrect:0, sessionTotal:0 };
+  wendRenderQuizQuestion();
+}
+function wendRenderQuizQuestion(){
+  if(!wendQuizState) return;
+  if(wendQuizState.idx >= wendQuizState.questions.length){ wendRenderCardComplete(); return; }
+  const q = wendQuizState.questions[wendQuizState.idx];
+  const el = document.getElementById("wendQuizView");
+  el.innerHTML = `
+    <div class="quiz-progress">Karte ${wendQuizState.cardNum} · Frage ${wendQuizState.idx+1} / ${wendQuizState.questions.length}</div>
+    <div class="quiz-prompt">${q.prompt} ${speakBtnIt(q.prompt)}</div>
+    <div class="quiz-options" id="wendQuizOptions">
+      ${q.options.map((opt,i)=>`<button class="quiz-opt" data-idx="${i}" onclick="wendAnswerQuiz(${i})">${opt}</button>`).join("")}
+    </div>
+    <div id="wendQuizFeedback"></div>
+  `;
+}
+function wendAnswerQuiz(i){
+  if(!wendQuizState || wendQuizState.answered) return;
+  wendQuizState.answered = true;
+  const q = wendQuizState.questions[wendQuizState.idx];
+  const chosen = q.options[i];
+  const correct = chosen === q.answer;
+  if(correct){ wendQuizState.correctCount++; wendQuizState.sessionCorrect++; }
+  wendQuizState.sessionTotal++;
+  document.querySelectorAll("#wendQuizOptions .quiz-opt").forEach((btn,idx)=>{
+    btn.disabled = true;
+    if(q.options[idx]===q.answer) btn.classList.add("quiz-correct");
+    else if(idx===i) btn.classList.add("quiz-wrong");
+  });
+  touchDaily(); touchStreak();
+  state.words = state.words || {};
+  const wasKnown = state.words[q.prompt] === "known";
+  state.words[q.prompt] = correct ? "known" : "learning";
+  saveState();
+  if(correct && !wasKnown) showBadgeToasts(checkAchievements());
+  const feedbackHead = correct
+    ? `<span class="quiz-fb-good">✅ Richtig!</span>`
+    : `<span class="quiz-fb-bad">❌ Leider falsch.</span> Richtig wäre: <b>${q.answer}</b>`;
+  document.getElementById("wendQuizFeedback").innerHTML = `
+    <div class="quiz-feedback">${feedbackHead} ${speakBtnIt(q.prompt)} <code>${q.pron||""}</code></div>
+    <button class="action primary" style="margin-top:10px;" onclick="wendNextQuizQuestion()">weiter ➜</button>
+  `;
+}
+function wendNextQuizQuestion(){
+  if(!wendQuizState) return;
+  wendQuizState.idx++;
+  wendQuizState.answered = false;
+  wendRenderQuizQuestion();
+}
+function wendRenderCardComplete(){
+  const total = wendQuizState.questions.length;
+  const score = wendQuizState.correctCount;
+  const perfect = score === total;
+  state.quizRoundsCompleted = (state.quizRoundsCompleted || 0) + 1;
+  if(perfect) state.quizPerfectCount = (state.quizPerfectCount || 0) + 1;
+  saveState();
+  const newly = checkAchievements();
+  const el = document.getElementById("wendQuizView");
+  el.innerHTML = `<div style="text-align:center;">
+    <h3>${perfect ? "🏆 Perfekte Karte!" : `Karte ${wendQuizState.cardNum} geschafft!`}</h3>
+    <p>${score} von ${total} richtig.</p>
+    <p class="small">Ganze Session: ${wendQuizState.sessionCorrect} / ${wendQuizState.sessionTotal}</p>
+    <button class="action primary" onclick="wendNextQuizCard()">Nächste Karte ➜</button>
+  </div>`;
+  showBadgeToasts(newly);
+}
+function wendNextQuizCard(){
+  const cardQuestions = wendBuildQuizCard();
+  if(cardQuestions.length===0){ wendRenderQuizIntro(); return; }
+  wendQuizState.cardNum++;
+  wendQuizState.questions = cardQuestions;
+  wendQuizState.idx = 0;
+  wendQuizState.correctCount = 0;
+  wendQuizState.answered = false;
+  wendRenderQuizQuestion();
 }
 
 /* ===================== LIEDER ===================== */
