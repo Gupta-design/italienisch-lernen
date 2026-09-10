@@ -307,6 +307,46 @@ table.gram th{background:var(--chip);}
   display:inline-block; background:var(--chip); color:var(--accent2); font-size:0.7rem; font-weight:800;
   padding:4px 11px; border-radius:20px; letter-spacing:0.3px; margin-bottom:8px;
 }
+/* --- Lückensätze: Wortbank-Quiz --- */
+.gap-progress-mini{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+.gap-progress-mini .progressbar{flex:1; margin-top:0;}
+.gap-progress-mini .gap-progress-txt{font-size:0.8rem; color:var(--sub); white-space:nowrap; font-weight:700;}
+.gap-card{
+  border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:14px;
+  background:var(--panel); transition:.2s; position:relative;
+}
+.gap-card.solved{border-color:var(--good); background:linear-gradient(135deg, rgba(90,170,120,0.08), var(--panel) 60%);}
+.gap-check{position:absolute; top:16px; right:18px; font-size:1.3rem; color:var(--good); display:none;}
+.gap-card.solved .gap-check{display:inline;}
+.gap-sentence{font-size:1.15rem; font-weight:700; line-height:1.55; margin-bottom:6px;}
+.gap-sentence .blank{
+  display:inline-block; min-width:76px; border-bottom:3px solid var(--accent); text-align:center;
+  color:var(--accent); font-weight:800; padding:0 4px;
+}
+.gap-card.solved .gap-sentence .blank{color:var(--good); border-color:var(--good);}
+.gap-pron{font-size:0.82rem; color:var(--sub); margin-bottom:12px;}
+.gap-choices{display:flex; flex-wrap:wrap; gap:10px;}
+.gap-choice{
+  border:2px solid var(--line); background:#fff; border-radius:10px; padding:10px 18px;
+  font-weight:700; font-size:0.98rem; cursor:pointer; transition:.15s; font-family:inherit;
+}
+.gap-choice:hover:not(:disabled){border-color:var(--accent); transform:translateY(-2px);}
+.gap-choice:disabled{cursor:default;}
+.gap-choice.correct{background:var(--good); border-color:var(--good); color:#fff;}
+.gap-choice.wrong{background:#e8607a; border-color:#e8607a; color:#fff; animation:gapShake .35s;}
+.gap-choice.dim{opacity:0.45;}
+@keyframes gapShake{0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}}
+.gap-feedback{
+  margin-top:14px; padding:12px 14px; border-radius:10px; background:var(--chip);
+  font-size:0.95rem; display:none; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.gap-feedback.show{display:flex; animation:gapFadeIn .25s;}
+@keyframes gapFadeIn{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);}}
+.gap-done-banner{
+  text-align:center; padding:22px; border-radius:16px;
+  background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
+  font-weight:700; font-size:1.05rem; margin-top:6px;
+}
 .lb-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;}
 .lb-row{display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 12px;}
 .lb-row.lb-me{border-color:var(--accent); background:var(--chip);}
@@ -866,7 +906,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.28.0</div>
+  <div class="version-tag">v0.29.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -11066,21 +11106,83 @@ function renderLieder(){
 
 /* ===================== ANWENDEN: Lückensätze ===================== */
 function renderAnwenden(){
-  const box = document.getElementById("anwendenList");
-  if(box){
-    box.innerHTML = GAP_EXERCISES.map((ex,i)=>`
-      <div class="card exercise" id="gapEx${i}">
-        <div style="font-size:1.1rem; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">${ex.it} ${speakBtnIt(ex.it.replace("___", ex.answer))}</div>
-        <div class="small" style="margin-top:4px;"><code>${ex.pron}</code></div>
-        <div class="btnrow" style="justify-content:flex-start; margin-top:8px;">
-          <button onclick="document.getElementById('gapEx${i}').classList.toggle('revealed')">Lösung zeigen</button>
-        </div>
-        <div class="answer"><b>${ex.answer}</b> — ${ex.de}</div>
-      </div>`).join("");
-  }
+  renderGapQuiz();
   renderChunkOptions();
   renderChunkSentence();
   renderFreePrompts();
+}
+
+/* Wortbank-Quiz für Lückensätze: Optionen einmal mischen und cachen, damit sie beim
+   Re-Render (z.B. nach richtiger Antwort) stabil bleiben. */
+let _gapChoiceCache = null;
+function gapChoicesFor(i){
+  if(!_gapChoiceCache) _gapChoiceCache = {};
+  if(_gapChoiceCache[i]) return _gapChoiceCache[i];
+  const correct = GAP_EXERCISES[i].answer;
+  const pool = shuffleArr(GAP_EXERCISES.filter((g,gi)=>gi!==i).map(g=>g.answer).filter(a=>a!==correct));
+  const distractors = pool.slice(0,3);
+  const options = shuffleArr([correct, ...distractors]);
+  _gapChoiceCache[i] = options;
+  return options;
+}
+function renderGapQuiz(){
+  const box = document.getElementById("anwendenList");
+  if(!box) return;
+  if(!state.gapSolved) state.gapSolved = {};
+  const total = GAP_EXERCISES.length;
+  const solvedCount = GAP_EXERCISES.filter((g,i)=>state.gapSolved[i]).length;
+  const pct = total ? Math.round(solvedCount/total*100) : 0;
+  const cardsHtml = GAP_EXERCISES.map((g,i)=>{
+    const solved = !!state.gapSolved[i];
+    const options = gapChoicesFor(i);
+    const fullSentence = g.it.replace("___", g.answer);
+    const choicesHtml = options.map((opt,oi)=>{
+      const isCorrect = opt === g.answer;
+      const cls = solved ? (isCorrect ? "gap-choice correct" : "gap-choice dim") : "gap-choice";
+      return `<button class="${cls}" ${solved?"disabled":""} onclick="gapChoose(${i}, ${oi}, this)">${opt}</button>`;
+    }).join("");
+    const feedbackHtml = solved
+      ? `<div class="gap-feedback show">✓ <b>${fullSentence}</b> ${speakBtnIt(fullSentence)} — ${g.de}</div>`
+      : `<div class="gap-feedback" id="gapFeedback${i}"></div>`;
+    return `
+      <div class="gap-card${solved?" solved":""}" id="gapCard${i}">
+        <span class="gap-check">✓</span>
+        <div class="gap-sentence">${g.it.replace("___", `<span class="blank">____</span>`)}</div>
+        <div class="gap-pron"><code>${g.pron}</code></div>
+        <div class="gap-choices" id="gapChoices${i}">${choicesHtml}</div>
+        ${feedbackHtml}
+      </div>`;
+  }).join("");
+  const doneHtml = (total>0 && solvedCount>=total)
+    ? `<div class="gap-done-banner">🎉 Alle ${total} Lückensätze gelöst — super gemacht!</div>`
+    : "";
+  box.innerHTML = `
+    <div class="gap-progress-mini">
+      <div class="progressbar"><div style="width:${pct}%"></div></div>
+      <span class="gap-progress-txt">${solvedCount} von ${total} gelöst</span>
+    </div>
+    ${cardsHtml}
+    ${doneHtml}`;
+}
+function gapChoose(i, optIdx, btnEl){
+  if(state.gapSolved && state.gapSolved[i]) return;
+  const g = GAP_EXERCISES[i];
+  const options = gapChoicesFor(i);
+  const chosen = options[optIdx];
+  const choicesBox = document.getElementById("gapChoices"+i);
+  const buttons = choicesBox ? [...choicesBox.querySelectorAll("button")] : [];
+  if(chosen === g.answer){
+    buttons.forEach(b=>{ b.disabled = true; });
+    btnEl.classList.add("correct");
+    if(!state.gapSolved) state.gapSolved = {};
+    state.gapSolved[i] = true;
+    touchDaily(); touchStreak(); saveState();
+    showBadgeToasts(checkAchievements());
+    renderGapQuiz();
+  } else {
+    btnEl.classList.add("wrong");
+    setTimeout(()=>{ btnEl.classList.remove("wrong"); }, 500);
+  }
 }
 function renderChunkOptions(){
   const pronSel = document.getElementById("chunkPron");
@@ -11386,7 +11488,8 @@ const ACHIEVEMENTS = [
   {id:"streak30", icon:"🔥", cond:s=>s.streak>=30,      de:"30 Tage in Folge gelernt"},
   {id:"dailygoal",icon:"🎯", cond:s=>s.dailyGoalHitCount>=1, de:"Erstes Tagesziel erreicht"},
   {id:"quiz1",     icon:"🧩", cond:s=>s.quizRoundsCompleted>=1, de:"Erste Quiz-Runde geschafft"},
-  {id:"quizperfect",icon:"🌟", cond:s=>s.quizPerfectCount>=1,  de:"Perfekte Quiz-Runde"}
+  {id:"quizperfect",icon:"🌟", cond:s=>s.quizPerfectCount>=1,  de:"Perfekte Quiz-Runde"},
+  {id:"gapall",    icon:"🧩", cond:s=>s.gapSolved>=GAP_EXERCISES.length, de:"Alle Lückensätze gelöst"}
 ];
 function achievementStats(){
   const words = allVocab();
@@ -11396,7 +11499,8 @@ function achievementStats(){
     streak: state.streak || 0,
     dailyGoalHitCount: state.dailyGoalHitCount || 0,
     quizRoundsCompleted: state.quizRoundsCompleted || 0,
-    quizPerfectCount: state.quizPerfectCount || 0
+    quizPerfectCount: state.quizPerfectCount || 0,
+    gapSolved: Object.values(state.gapSolved||{}).filter(Boolean).length
   };
 }
 function checkAchievements(){
