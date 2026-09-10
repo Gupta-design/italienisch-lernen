@@ -906,7 +906,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.29.0</div>
+  <div class="version-tag">v0.30.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -1812,16 +1812,22 @@ const CHUNK_PRONOUNS = [
 ];
 const CHUNK_VERBS = [
  {label:"mangiare (essen)", de:"essen", forms:{io:"mangio", tu:"mangi", lui:"mangia", lei:"mangia", noi:"mangiamo", loro:"mangiano"},
+  deForms:{io:"esse", tu:"isst", lui:"isst", lei:"isst", noi:"essen", loro:"essen"},
   objects:[{v:"la pasta", de:"die Pasta"},{v:"la pizza", de:"die Pizza"},{v:"il gelato", de:"das Eis"}]},
  {label:"bere (trinken)", de:"trinken", forms:{io:"bevo", tu:"bevi", lui:"beve", lei:"beve", noi:"beviamo", loro:"bevono"},
+  deForms:{io:"trinke", tu:"trinkst", lui:"trinkt", lei:"trinkt", noi:"trinken", loro:"trinken"},
   objects:[{v:"un caffè", de:"einen Kaffee"},{v:"un'acqua", de:"ein Wasser"},{v:"un vino", de:"einen Wein"}]},
  {label:"leggere (lesen)", de:"lesen", forms:{io:"leggo", tu:"leggi", lui:"legge", lei:"legge", noi:"leggiamo", loro:"leggono"},
+  deForms:{io:"lese", tu:"liest", lui:"liest", lei:"liest", noi:"lesen", loro:"lesen"},
   objects:[{v:"un libro", de:"ein Buch"},{v:"il giornale", de:"die Zeitung"},{v:"una lettera", de:"einen Brief"}]},
  {label:"parlare (sprechen)", de:"sprechen", forms:{io:"parlo", tu:"parli", lui:"parla", lei:"parla", noi:"parliamo", loro:"parlano"},
+  deForms:{io:"spreche", tu:"sprichst", lui:"spricht", lei:"spricht", noi:"sprechen", loro:"sprechen"},
   objects:[{v:"italiano", de:"Italienisch"},{v:"inglese", de:"Englisch"},{v:"tedesco", de:"Deutsch"}]},
  {label:"vedere (sehen)", de:"sehen", forms:{io:"vedo", tu:"vedi", lui:"vede", lei:"vede", noi:"vediamo", loro:"vedono"},
+  deForms:{io:"sehe", tu:"siehst", lui:"sieht", lei:"sieht", noi:"sehen", loro:"sehen"},
   objects:[{v:"un film", de:"einen Film"},{v:"la televisione", de:"fern"},{v:"un amico", de:"einen Freund"}]},
  {label:"comprare (kaufen)", de:"kaufen", forms:{io:"compro", tu:"compri", lui:"compra", lei:"compra", noi:"compriamo", loro:"comprano"},
+  deForms:{io:"kaufe", tu:"kaufst", lui:"kauft", lei:"kauft", noi:"kaufen", loro:"kaufen"},
   objects:[{v:"il pane", de:"das Brot"},{v:"i biglietti", de:"die Tickets"},{v:"un regalo", de:"ein Geschenk"}]}
 ];
 
@@ -11215,7 +11221,12 @@ function renderChunkSentence(){
   const verbForm = verb.forms[pron.v];
   const sentence = `${pron.v} ${verbForm} ${obj.v}.`;
   const pronDe = pron.label.match(/\(([^)]+)\)/)?.[1] || pron.v;
-  result.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span><strong>Dein Satz:</strong> ${sentence}</span> ${speakBtnIt(sentence)}</div><div class="small" style="margin-top:4px;">„${pronDe} ${verb.de} ${obj.de}"</div>`;
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  // Echter, konjugierter deutscher Satz statt aneinandergereihter Einzel-Glossen
+  // (z.B. "Ich esse die Pasta." statt "ich essen die Pasta").
+  const deVerb = (verb.deForms && verb.deForms[pron.v]) || verb.de;
+  const deSentence = `${cap(pronDe)} ${deVerb} ${obj.de}.`;
+  result.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span><strong>Dein Satz:</strong> ${sentence}</span> ${speakBtnIt(sentence)}</div><div class="small" style="margin-top:4px;">„${deSentence}"</div>`;
 }
 function freePromptsUnlockedCount(){
   state.freePromptsUnlocked = state.freePromptsUnlocked || 1;
