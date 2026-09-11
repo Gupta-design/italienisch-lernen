@@ -550,7 +550,8 @@ footer{
     url("images/rialto.jpg") center 30%/cover no-repeat;
   border-top:1px solid var(--line);
 }
-footer a{color:var(--accent);}
+footer a{color:var(--sub); text-decoration-color:var(--sub);}
+footer a:hover{color:var(--ink);}
 .decode-row{display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 6px;}
 .decode-word{text-align:center; min-width:54px;}
 .decode-word .w{font-weight:700; color:var(--ink);}
@@ -911,7 +912,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.34.0</div>
+  <div class="version-tag">v0.35.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
