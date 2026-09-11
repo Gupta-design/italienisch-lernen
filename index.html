@@ -911,11 +911,11 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.33.0</div>
+  <div class="version-tag">v0.34.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
-  <div class="modal">
+  <div class="modal-box">
     <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button>
     <h2>Impressum</h2>
     <p><strong>Angaben gemäß § 5 DDG</strong></p>
@@ -928,7 +928,7 @@ footer a{color:var(--accent);}
 </div>
 
 <div class="modal-overlay" id="modalDatenschutz" style="display:none;">
-  <div class="modal">
+  <div class="modal-box">
     <button class="modal-close" onclick="this.closest('.modal-overlay').style.display='none'">✕</button>
     <h2>Datenschutzerklärung</h2>
     <p><strong>1. Verantwortlicher</strong><br>Dirk Schnettler, Rembrandtstr. 39, 45147 Essen, dirkschnettler@icloud.com</p>
