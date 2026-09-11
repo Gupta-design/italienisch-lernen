@@ -906,7 +906,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.31.0</div>
+  <div class="version-tag">v0.32.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -11635,12 +11635,29 @@ function renderGapQuiz(){
     ? `<div class="gap-done-banner">🎉 Alle ${total} Lückensätze gelöst — super gemacht!</div>`
     : "";
   box.innerHTML = `
-    <div class="gap-progress-mini">
-      <div class="progressbar"><div style="width:${pct}%"></div></div>
-      <span class="gap-progress-txt">${solvedCount} von ${total} gelöst</span>
+    <div class="gap-progress-mini" id="gapProgressMini">
+      <div class="progressbar"><div id="gapProgressFill" style="width:${pct}%"></div></div>
+      <span class="gap-progress-txt" id="gapProgressTxt">${solvedCount} von ${total} gelöst</span>
     </div>
     ${cardsHtml}
-    ${doneHtml}`;
+    <div id="gapDoneBanner">${doneHtml}</div>`;
+}
+/* Aktualisiert nur Fortschrittsbalken + Text + Fertig-Banner, ohne die Karten neu zu
+   rendern (verhindert Layout-Sprung/Fehlklicks beim schnellen Weiterklicken). */
+function updateGapProgress(){
+  const total = GAP_EXERCISES.length;
+  const solvedCount = GAP_EXERCISES.filter((g,i)=>state.gapSolved && state.gapSolved[i]).length;
+  const pct = total ? Math.round(solvedCount/total*100) : 0;
+  const fill = document.getElementById("gapProgressFill");
+  if(fill) fill.style.width = pct + "%";
+  const txt = document.getElementById("gapProgressTxt");
+  if(txt) txt.textContent = `${solvedCount} von ${total} gelöst`;
+  const banner = document.getElementById("gapDoneBanner");
+  if(banner){
+    banner.innerHTML = (total>0 && solvedCount>=total)
+      ? `<div class="gap-done-banner">🎉 Alle ${total} Lückensätze gelöst — super gemacht!</div>`
+      : "";
+  }
 }
 function gapChoose(i, optIdx, btnEl){
   if(state.gapSolved && state.gapSolved[i]) return;
@@ -11650,13 +11667,23 @@ function gapChoose(i, optIdx, btnEl){
   const choicesBox = document.getElementById("gapChoices"+i);
   const buttons = choicesBox ? [...choicesBox.querySelectorAll("button")] : [];
   if(chosen === g.answer){
-    buttons.forEach(b=>{ b.disabled = true; });
-    btnEl.classList.add("correct");
+    buttons.forEach((b,bi)=>{
+      b.disabled = true;
+      b.classList.add(options[bi]===g.answer ? "correct" : "dim");
+    });
     if(!state.gapSolved) state.gapSolved = {};
     state.gapSolved[i] = true;
     touchDaily(); touchStreak(); saveState();
     showBadgeToasts(checkAchievements());
-    renderGapQuiz();
+    const card = document.getElementById("gapCard"+i);
+    if(card) card.classList.add("solved");
+    const fullSentence = g.it.replace("___", g.answer);
+    const feedbackEl = document.getElementById("gapFeedback"+i);
+    if(feedbackEl){
+      feedbackEl.classList.add("show");
+      feedbackEl.innerHTML = `✓ <b>${fullSentence}</b> ${speakBtnIt(fullSentence)} — ${g.de}`;
+    }
+    updateGapProgress();
   } else {
     btnEl.classList.add("wrong");
     setTimeout(()=>{ btnEl.classList.remove("wrong"); }, 500);
