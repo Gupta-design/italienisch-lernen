@@ -635,6 +635,7 @@ footer a{color:var(--accent);}
   <button data-view="wortschatz" onclick="showView('wortschatz')">Wortschatz</button>
   <button data-view="wendungen" onclick="showView('wendungen')">Wendungen</button>
   <button data-view="aussprache" onclick="showView('aussprache')">Aussprache</button>
+  <button data-view="storys" onclick="showView('storys')">📖 Storys</button>
   <button data-view="lieder" onclick="showView('lieder')">🎵 Lieder</button>
   <button data-view="anwenden" onclick="showView('anwenden')">Anwenden</button>
   <button data-view="quiz" onclick="showView('quiz')">🧩 Quiz</button>
@@ -775,6 +776,10 @@ footer a{color:var(--accent);}
   </div>
 </section>
 
+<section class="view" id="view-storys">
+  <div id="storysList"></div>
+</section>
+
 <section class="view" id="view-lieder">
   <div class="card">
     <h2>🎵 Lieder</h2>
@@ -890,8 +895,8 @@ footer a{color:var(--accent);}
     <a href="mailto:dirkschnettler@icloud.com">dirkschnettler@icloud.com</a></p>
   </div>
   <div class="card todo-note">
-    <strong>Aktueller Stand:</strong> Alle 30 Lektionen, Wendungen, Lieder, Anwenden-Übungen und das Quiz sind da.
-    Nutzerkonten und Bestenliste laufen live. Ein Geschichten-Bereich folgt als Nächstes.
+    <strong>Aktueller Stand:</strong> Alle 30 Lektionen, Wendungen, Storys, Lieder, Anwenden-Übungen und das Quiz sind da.
+    Nutzerkonten und Bestenliste laufen live.
   </div>
 </section>
 </main>
@@ -906,7 +911,7 @@ footer a{color:var(--accent);}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.32.0</div>
+  <div class="version-tag">v0.33.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -1761,6 +1766,100 @@ const WENDUNGEN_DATA = [
  {it:"Non ci sto", de:"Ich bin nicht dabei / Das mache ich nicht mit", pron:"non chi STO", cat:"Slang e linguaggio giovanile"},
  {it:"Vado alla grande", de:"Es läuft super bei mir", pron:"VA-do AL-la GRAN-de", cat:"Slang e linguaggio giovanile"},
  {it:"Sono in fissa con...", de:"Ich bin besessen von...", pron:"SO-no in FIS-sa kon", cat:"Slang e linguaggio giovanile"},
+];
+
+/* ===================== STORYS (kurze Alltagsdialoge zum Decodieren) ===================== */
+const STORIES_DATA = [
+  {title:"Routine mattutina e famiglia", titleDe:"Morgenroutine und Familie",
+   lines:[
+    {it:"Buongiorno! Sono già le sei.", natural:"Guten Morgen! Es ist schon sechs Uhr.", pron:"bwon-DSCHOR-no SO-no dscha le SEI"},
+    {it:"Svegliati, è ora di andare a scuola.", natural:"Wach auf, es ist Zeit für die Schule.", pron:"SVE-lya-ti e O-ra di an-DA-re a SKWO-la"},
+    {it:"Mi faccio la doccia e lavo i denti.", natural:"Ich dusche und putze meine Zähne.", pron:"mi FAT-cho la DOT-cha e LA-vo i DEN-ti"},
+    {it:"Devo alzarmi presto per fare tante cose.", natural:"Ich muss früh aufstehen, um viel zu erledigen.", pron:"DE-vo al-TSAR-mi PRES-to per FA-re TAN-te KO-ze"},
+    {it:"La mamma cucina riso e uova per la colazione.", natural:"Mama kocht Reis und Eier zum Frühstück.", pron:"la MAM-ma ku-CHI-na RI-zo e WO-va per la ko-la-TSYO-ne"},
+    {it:"Cos'è la nostra colazione oggi?", natural:"Was ist unser Frühstück heute?", pron:"ko-ZE la NOS-tra ko-la-TSYO-ne OD-dschi"},
+    {it:"Caffè e pane sono la nostra colazione.", natural:"Kaffee und Brot sind unser Frühstück.", pron:"kaf-FE e PA-ne SO-no la NOS-tra ko-la-TSYO-ne"},
+    {it:"Dopo colazione vado a scuola.", natural:"Nach dem Frühstück gehe ich zur Schule.", pron:"DO-po ko-la-TSYO-ne VA-do a SKWO-la"},
+    {it:"Papà parte presto per andare al lavoro.", natural:"Papa geht früh los zur Arbeit.", pron:"pa-PA PAR-te PRES-to per an-DA-re al la-VO-ro"},
+    {it:"Mio fratellino gioca ancora nel letto.", natural:"Mein kleiner Bruder spielt noch im Bett.", pron:"MI-o fra-tel-LI-no DSCHO-ka an-KO-ra nel LET-to"},
+    {it:"Mangiamo tutti insieme come famiglia.", natural:"Wir essen alle zusammen als Familie.", pron:"man-DSCHA-mo TUT-ti in-SYE-me KO-me fa-MI-lya"},
+    {it:"Sono felice della nostra routine mattutina.", natural:"Ich bin froh über unsere Morgenroutine.", pron:"SO-no fe-LI-che DEL-la NOS-tra ru-TI-na mat-tu-TI-na"}
+   ]},
+  {title:"Al mercato", titleDe:"Auf dem Markt",
+   lines:[
+    {it:"Buongiorno! Vorrei comprare della verdura.", natural:"Guten Morgen! Ich möchte Gemüse kaufen.", pron:"bwon-DSCHOR-no vor-REI kom-PRA-re DEL-la ver-DU-ra"},
+    {it:"Quanto costano i pomodori?", natural:"Wie viel kosten die Tomaten?", pron:"KWAN-to KOS-ta-no i po-mo-DO-ri"},
+    {it:"Due euro al chilo.", natural:"Zwei Euro pro Kilo.", pron:"DU-e EU-ro al KI-lo"},
+    {it:"È un po' caro. C'è uno sconto?", natural:"Das ist etwas teuer. Gibt es einen Rabatt?", pron:"e un po KA-ro tche U-no SKON-to"},
+    {it:"Per lei faccio un euro e cinquanta.", natural:"Für Sie mache ich es einen Euro fünfzig.", pron:"per LEI FAT-cho un EU-ro e chin-KWAN-ta"},
+    {it:"D'accordo, compro due chili.", natural:"In Ordnung, ich kaufe zwei Kilo.", pron:"dak-KOR-do KOM-pro DU-e KI-li"},
+    {it:"Ecco il suo resto, cinquanta centesimi.", natural:"Hier ist Ihr Wechselgeld, fünfzig Cent.", pron:"EK-ko il SU-o RES-to chin-KWAN-ta chen-TE-zi-mi"},
+    {it:"Avete anche pesce fresco?", natural:"Haben Sie auch frischen Fisch?", pron:"a-VE-te AN-ke PE-she FRES-ko"},
+    {it:"Sì, ce l'abbiamo. Guardi qui.", natural:"Ja, den haben wir. Schauen Sie hier.", pron:"si che lab-BYA-mo GWAR-di kwi"},
+    {it:"Quanto costa tutto insieme?", natural:"Wie viel kostet das alles zusammen?", pron:"KWAN-to KOS-ta TUT-to in-SYE-me"},
+    {it:"In tutto sono dieci euro.", natural:"Zusammen sind es zehn Euro.", pron:"in TUT-to SO-no DYE-chi EU-ro"},
+    {it:"Grazie mille! Arrivederci!", natural:"Vielen Dank! Auf Wiedersehen!", pron:"GRAT-tsye MIL-le ar-ri-ve-DER-chi"}
+   ]},
+  {title:"Parlare del tempo", titleDe:"Über das Wetter reden",
+   lines:[
+    {it:"Buongiorno! Che tempo fa oggi?", natural:"Guten Morgen! Wie ist das Wetter heute?", pron:"bwon-DSCHOR-no ke TEM-po fa OD-dschi"},
+    {it:"Oggi il tempo è bello.", natural:"Das Wetter ist heute schön.", pron:"OD-dschi il TEM-po e BEL-lo"},
+    {it:"Il sole splende e il cielo è azzurro.", natural:"Die Sonne scheint und der Himmel ist blau.", pron:"il SO-le SPLEN-de e il CHE-lo e ad-DZUR-ro"},
+    {it:"Domani forse pioverà.", natural:"Morgen wird es vielleicht regnen.", pron:"do-MA-ni FOR-se pyo-ve-RA"},
+    {it:"Non mi piace quando piove tanto.", natural:"Ich mag es nicht, wenn es so stark regnet.", pron:"non mi PYA-che KWAN-do PYO-ve TAN-to"},
+    {it:"In inverno fa molto freddo qui.", natural:"Im Winter ist es hier sehr kalt.", pron:"in in-VER-no fa MOL-to FRED-do kwi"},
+    {it:"In estate fa caldo e c'è il sole.", natural:"Im Sommer ist es heiß und sonnig.", pron:"in es-TA-te fa KAL-do e tche il SO-le"},
+    {it:"Porta un ombrello, per favore.", natural:"Nimm bitte einen Regenschirm mit.", pron:"POR-ta un om-BREL-lo per fa-VO-re"},
+    {it:"C'è molto vento oggi pomeriggio.", natural:"Heute Nachmittag ist es sehr windig.", pron:"tche MOL-to VEN-to OD-dschi po-me-RID-dscho"},
+    {it:"Mi piace il tempo fresco d'autunno.", natural:"Ich mag das kühle Herbstwetter.", pron:"mi PYA-che il TEM-po FRES-ko dau-TUN-no"},
+    {it:"Che bel cielo stellato stasera!", natural:"Was für ein schöner Sternenhimmel heute Abend!", pron:"ke bel CHE-lo stel-LA-to sta-SE-ra"},
+    {it:"Spero che domani ci sia il sole.", natural:"Ich hoffe, dass morgen die Sonne scheint.", pron:"SPE-ro ke do-MA-ni chi SI-a il SO-le"}
+   ]},
+  {title:"Incontrare amici", titleDe:"Freunde treffen und Begrüßung",
+   lines:[
+    {it:"Ciao! Come stai oggi?", natural:"Hallo! Wie geht es dir heute?", pron:"CHAO KO-me STAI OD-dschi"},
+    {it:"Sto bene, grazie. E tu?", natural:"Mir geht's gut, danke. Und dir?", pron:"sto BE-ne GRAT-tsye e tu"},
+    {it:"Anche io sto bene, grazie mille.", natural:"Mir geht es auch gut, vielen Dank.", pron:"AN-ke I-o sto BE-ne GRAT-tsye MIL-le"},
+    {it:"Non ci vediamo da molto tempo!", natural:"Wir haben uns lange nicht gesehen!", pron:"non chi ve-DYA-mo da MOL-to TEM-po"},
+    {it:"È vero, mi sei mancato molto.", natural:"Das ist wahr, ich habe dich sehr vermisst.", pron:"e VE-ro mi SEI man-KA-to MOL-to"},
+    {it:"Vuoi venire a casa mia stasera?", natural:"Willst du heute Abend zu mir kommen?", pron:"VWOI ve-NI-re a KA-za MI-a sta-SE-ra"},
+    {it:"Volentieri! A che ora devo venire?", natural:"Gerne! Um wie viel Uhr soll ich kommen?", pron:"vo-len-TYE-ri a ke O-ra DE-vo ve-NI-re"},
+    {it:"Vieni verso le sette, va bene?", natural:"Komm gegen sieben Uhr, ist das gut?", pron:"VYE-ni VER-so le SET-te va BE-ne"},
+    {it:"Perfetto, ci vediamo dopo allora.", natural:"Perfekt, dann sehen wir uns später.", pron:"per-FET-to chi ve-DYA-mo DO-po al-LO-ra"},
+    {it:"Porto anche mia sorella, se va bene.", natural:"Ich bringe auch meine Schwester mit, wenn das okay ist.", pron:"POR-to AN-ke MI-a so-REL-la se va BE-ne"},
+    {it:"Certo, sarà un piacere vederla.", natural:"Klar, es wird schön sein, sie zu sehen.", pron:"CHER-to sa-RA un pya-CHE-re ve-DER-la"},
+    {it:"A dopo, allora! Ci vediamo stasera.", natural:"Bis später! Wir sehen uns heute Abend.", pron:"a DO-po al-LO-ra chi ve-DYA-mo sta-SE-ra"}
+   ]},
+  {title:"Chiedere indicazioni", titleDe:"Nach dem Weg fragen",
+   lines:[
+    {it:"Scusi, come arrivo alla stazione?", natural:"Entschuldigung, wie komme ich zum Bahnhof?", pron:"SKU-zi KO-me ar-RI-vo AL-la sta-TSYO-ne"},
+    {it:"Vada dritto e poi giri a destra.", natural:"Gehen Sie geradeaus und biegen Sie dann rechts ab.", pron:"VA-da DRIT-to e POI DSCHI-ri a DES-tra"},
+    {it:"È lontano da qui a piedi?", natural:"Ist es weit von hier zu Fuß?", pron:"e lon-TA-no da kwi a PYE-di"},
+    {it:"No, sono solo dieci minuti a piedi.", natural:"Nein, es sind nur zehn Minuten zu Fuß.", pron:"no SO-no SO-lo DYE-chi mi-NU-ti a PYE-di"},
+    {it:"C'è un autobus che va lì?", natural:"Gibt es einen Bus, der dort hinfährt?", pron:"tche un OW-to-bus ke va li"},
+    {it:"Sì, l'autobus numero cinque va lì.", natural:"Ja, der Bus Nummer fünf fährt dort hin.", pron:"si LOW-to-bus NU-me-ro CHIN-kwe va li"},
+    {it:"Dove posso comprare il biglietto?", natural:"Wo kann ich das Ticket kaufen?", pron:"DO-ve POS-so kom-PRA-re il bi-LYET-to"},
+    {it:"Puoi comprarlo qui all'edicola.", natural:"Du kannst es hier am Kiosk kaufen.", pron:"PWOI kom-PRAR-lo kwi al-le-DI-ko-la"},
+    {it:"Grazie mille per il suo aiuto.", natural:"Vielen Dank für Ihre Hilfe.", pron:"GRAT-tsye MIL-le per il SU-o a-YU-to"},
+    {it:"Di niente, buon viaggio!", natural:"Kein Problem, gute Reise!", pron:"di NYEN-te bwon VYAD-dscho"},
+    {it:"Scusi ancora, dov'è la farmacia?", natural:"Entschuldigung noch mal, wo ist die Apotheke?", pron:"SKU-zi an-KO-ra do-VE la far-ma-CHI-a"},
+    {it:"È proprio dietro l'angolo, a sinistra.", natural:"Sie ist gleich um die Ecke, links.", pron:"e PRO-pryo DYE-tro LAN-go-lo a si-NIS-tra"}
+   ]},
+  {title:"Ordinare al ristorante", titleDe:"Essen bestellen im Restaurant",
+   lines:[
+    {it:"Buonasera, un tavolo per due, per favore.", natural:"Guten Abend, einen Tisch für zwei, bitte.", pron:"bwo-na-SE-ra un TA-vo-lo per DU-e per fa-VO-re"},
+    {it:"Certo, seguitemi, per favore.", natural:"Natürlich, folgen Sie mir bitte.", pron:"CHER-to se-GWI-te-mi per fa-VO-re"},
+    {it:"Cosa ci consiglia oggi?", natural:"Was empfehlen Sie uns heute?", pron:"KO-za chi kon-SI-lya OD-dschi"},
+    {it:"Vi consiglio la pasta al pomodoro.", natural:"Ich empfehle Ihnen die Pasta mit Tomatensoße.", pron:"vi kon-SI-lyo la PAS-ta al po-mo-DO-ro"},
+    {it:"Vorrei anche un'insalata mista.", natural:"Ich möchte auch einen gemischten Salat.", pron:"vor-REI AN-ke u-nin-sa-LA-ta MIS-ta"},
+    {it:"Da bere, cosa desiderate?", natural:"Zum Trinken, was möchten Sie?", pron:"da BE-re KO-za de-zi-de-RA-te"},
+    {it:"Un'acqua frizzante, per favore.", natural:"Ein Sprudelwasser, bitte.", pron:"u-NAK-kwa frid-DZAN-te per fa-VO-re"},
+    {it:"Il conto, per favore, quando può.", natural:"Die Rechnung, bitte, wenn Sie können.", pron:"il KON-to per fa-VO-re KWAN-do PWO"},
+    {it:"Certo, arrivo subito con il conto.", natural:"Natürlich, ich komme sofort mit der Rechnung.", pron:"CHER-to ar-RI-vo SU-bi-to kon il KON-to"},
+    {it:"Era tutto molto buono, grazie.", natural:"Alles war sehr gut, danke.", pron:"E-ra TUT-to MOL-to BWO-no GRAT-tsye"},
+    {it:"Sono felice che vi sia piaciuto.", natural:"Ich freue mich, dass es Ihnen gefallen hat.", pron:"SO-no fe-LI-che ke vi SI-a pya-CHU-to"},
+    {it:"Buonasera e a presto!", natural:"Guten Abend und bis bald!", pron:"bwo-na-SE-ra e a PRES-to"}
+   ]}
 ];
 
 /* ===================== LIEDER (traditionelle, gemeinfreie italienische Volkslieder) ===================== */
@@ -5524,7 +5623,7 @@ function escapeHtml(str){
 
 /* ===================== KONTO / REGISTRIERUNG (Firebase Auth) ===================== */
 const PROFILE_KEY = "italienisch_profile_v1";
-const GATED_VIEWS = ["lektionen","wortschatz","wendungen","lieder","anwenden","quiz","fortschritt","bestenliste"];
+const GATED_VIEWS = ["lektionen","wortschatz","wendungen","storys","lieder","anwenden","quiz","fortschritt","bestenliste"];
 let pendingView = null;
 function loadProfile(){
   try{ return JSON.parse(localStorage.getItem(PROFILE_KEY)) || null; }
@@ -5712,6 +5811,7 @@ function showView(name){
   if(name==="lektionen") renderLessonList();
   if(name==="wortschatz"){ renderFlashcards(); const c = document.getElementById("vocabBankCount"); if(c) c.textContent = VOCAB_BANK.length; }
   if(name==="wendungen") wendInit();
+  if(name==="storys") renderStoryList();
   if(name==="lieder") renderLieder();
   if(name==="anwenden") renderAnwenden();
   if(name==="quiz") renderQuizView();
@@ -10419,7 +10519,78 @@ const AUDIO_MAP = {
 "Non ci sto":"c9982088f82383c0.mp3",
 "Diamoci un cinque":"81a869afc5837ebd.mp3",
 "Sono in fissa con...":"f174f275962529d2.mp3",
-"Vado alla grande":"739bdca97035c43d.mp3"
+"Vado alla grande":"739bdca97035c43d.mp3",
+"Buongiorno! Sono già le sei.":"57729dda529b63e9.mp3",
+"Mi faccio la doccia e lavo i denti.":"69a915e1aba70ae6.mp3",
+"Svegliati, è ora di andare a scuola.":"a94b43a91ba06128.mp3",
+"Devo alzarmi presto per fare tante cose.":"e85b05a31b610e4a.mp3",
+"Cos'è la nostra colazione oggi?":"f9ec2005cb66d244.mp3",
+"La mamma cucina riso e uova per la colazione.":"df0cfa8ed3d62a31.mp3",
+"Dopo colazione vado a scuola.":"564a5e7507077b7a.mp3",
+"Caffè e pane sono la nostra colazione.":"deda5fb844ab553c.mp3",
+"Papà parte presto per andare al lavoro.":"d78aa91a8897ae6e.mp3",
+"Mio fratellino gioca ancora nel letto.":"83595e69f7a7de49.mp3",
+"Mangiamo tutti insieme come famiglia.":"afb6109ed16271a0.mp3",
+"Sono felice della nostra routine mattutina.":"c0b5d11655773c83.mp3",
+"Buongiorno! Vorrei comprare della verdura.":"d1ba7cd72491c8ac.mp3",
+"Quanto costano i pomodori?":"caa0893e6fa4d2ff.mp3",
+"Due euro al chilo.":"b3e4e8b92059e2ab.mp3",
+"È un po' caro. C'è uno sconto?":"f6be5fd9c8a3421d.mp3",
+"D'accordo, compro due chili.":"7714c29aff4ef3b2.mp3",
+"Per lei faccio un euro e cinquanta.":"55a8b396bf00c51f.mp3",
+"Avete anche pesce fresco?":"30025f5c9e66944e.mp3",
+"Ecco il suo resto, cinquanta centesimi.":"ddb9a8dace94f4ad.mp3",
+"Quanto costa tutto insieme?":"3e53c8b1e1a42fd6.mp3",
+"Sì, ce l'abbiamo. Guardi qui.":"8ffc86340c97857e.mp3",
+"In tutto sono dieci euro.":"bcab76b046fa9f2f.mp3",
+"Grazie mille! Arrivederci!":"4314e513a1112524.mp3",
+"Buongiorno! Che tempo fa oggi?":"af1c59c3e77b76b6.mp3",
+"Oggi il tempo è bello.":"722f5416e9855eea.mp3",
+"Il sole splende e il cielo è azzurro.":"93a9be023b80e635.mp3",
+"Domani forse pioverà.":"54144f5283693f5f.mp3",
+"Non mi piace quando piove tanto.":"3e6be586cbb5f173.mp3",
+"In inverno fa molto freddo qui.":"71bf8dbc8417b5d8.mp3",
+"In estate fa caldo e c'è il sole.":"84bf54325cf1da8d.mp3",
+"Porta un ombrello, per favore.":"afe81942f1307796.mp3",
+"Mi piace il tempo fresco d'autunno.":"b6d03152c5ac2370.mp3",
+"C'è molto vento oggi pomeriggio.":"a5de438e082121ee.mp3",
+"Che bel cielo stellato stasera!":"49cb3fbb7fac6bd9.mp3",
+"Spero che domani ci sia il sole.":"3be6fc6f5f8cc9b9.mp3",
+"Ciao! Come stai oggi?":"89e4c2033e97baa7.mp3",
+"Anche io sto bene, grazie mille.":"0a5a945ae276050d.mp3",
+"Non ci vediamo da molto tempo!":"4f696e13f8da325e.mp3",
+"È vero, mi sei mancato molto.":"88f32ceb00d4e505.mp3",
+"Vuoi venire a casa mia stasera?":"086efdd7bb2ac173.mp3",
+"Volentieri! A che ora devo venire?":"3afb008506aaa8bc.mp3",
+"Vieni verso le sette, va bene?":"8591b52871fea305.mp3",
+"Perfetto, ci vediamo dopo allora.":"155c77b3cc80abce.mp3",
+"Porto anche mia sorella, se va bene.":"68d099dcf8b4c3ca.mp3",
+"Certo, sarà un piacere vederla.":"170afe5d29bd8e4c.mp3",
+"Scusi, come arrivo alla stazione?":"664a061647d19477.mp3",
+"No, sono solo dieci minuti a piedi.":"341a03a179f0c3dd.mp3",
+"C'è un autobus che va lì?":"5a89cc37fc9cc413.mp3",
+"A dopo, allora! Ci vediamo stasera.":"5d0f34d69fc21ec0.mp3",
+"Vada dritto e poi giri a destra.":"4050de4d7e4926ec.mp3",
+"Sì, l'autobus numero cinque va lì.":"d2dab5c661af4dc2.mp3",
+"Dove posso comprare il biglietto?":"b67a49e25dddff4b.mp3",
+"Grazie mille per il suo aiuto.":"b996b2130a61bd15.mp3",
+"Scusi ancora, dov'è la farmacia?":"d8abd851423f26e2.mp3",
+"È proprio dietro l'angolo, a sinistra.":"c8129af6fa05f888.mp3",
+"È lontano da qui a piedi?":"7cdb968ef345d919.mp3",
+"Buonasera, un tavolo per due, per favore.":"d0747bf9a094fa64.mp3",
+"Certo, seguitemi, per favore.":"a0473c541bae00b6.mp3",
+"Cosa ci consiglia oggi?":"c321de7d2fe9ed03.mp3",
+"Di niente, buon viaggio!":"9a4ac5c2ba809b76.mp3",
+"Vi consiglio la pasta al pomodoro.":"df25044f773c1432.mp3",
+"Vorrei anche un'insalata mista.":"96711124d819cfb1.mp3",
+"Un'acqua frizzante, per favore.":"7a2e1e4a5cca142d.mp3",
+"Puoi comprarlo qui all'edicola.":"2c584b3b5312b5d3.mp3",
+"Era tutto molto buono, grazie.":"ce24ef0da43b064c.mp3",
+"Sono felice che vi sia piaciuto.":"fb99216d14dfe3e4.mp3",
+"Il conto, per favore, quando può.":"bd779f856ca6b800.mp3",
+"Certo, arrivo subito con il conto.":"3dc26456c9cff4c5.mp3",
+"Buonasera e a presto!":"36ff49e9a3b15949.mp3",
+"Da bere, cosa desiderate?":"4435de4cc8949251.mp3"
 };
 const AUDIO_MAP_DE = {
 "ab":"ac982390b8a61fc6.mp3",
@@ -11118,6 +11289,170 @@ function renderSentenceBuilder(l){
     </div>`;
 }
 
+/* ===================== ZEILEN-DECODIEREN (Storys & Lieder) ===================== */
+// Gleiche Wortbau-Mechanik wie beim Lektions-Satzbau (sbPlace: Klick wird sofort geprueft),
+// aber nur in eine Richtung: Italienisch -> Deutsch (Decodieren). deckKey identifiziert
+// Story/Lied eindeutig (z.B. "story0", "lied1"), damit der Fortschritt getrennt von den
+// Lektionen gespeichert wird.
+let lineDecodeSb = {};
+function ldTaskKey(deckKey, lineIdx){ return deckKey+"_"+lineIdx; }
+function ldDoneMap(){
+  state.lineDecode = state.lineDecode || {};
+  return state.lineDecode;
+}
+function ldDoneCount(deckKey, total){
+  const map = ldDoneMap();
+  let c = 0;
+  for(let i=0;i<total;i++){ if(map[ldTaskKey(deckKey,i)]) c++; }
+  return c;
+}
+function ldDeckInfo(kind, idx){
+  if(kind==="story"){
+    const s = STORIES_DATA[idx];
+    return { deckKey:"story"+idx, lines:s.lines, reopen:()=>openStory(idx) };
+  }
+  const s = LIEDER_DATA[idx];
+  return { deckKey:"lied"+idx, lines:s.lines, reopen:()=>openLied(idx) };
+}
+function ldCollectDecoyCandidates(lines, lineIdx, excludeWords){
+  const excludeNorm = new Set(excludeWords.map(sbNormWord));
+  const seenNorm = new Set();
+  const words = [];
+  lines.forEach((otherLine,i)=>{
+    if(i===lineIdx) return;
+    sbTokenize(otherLine.natural).forEach(w=>{
+      const norm = sbNormWord(w);
+      if(!norm || excludeNorm.has(norm) || seenNorm.has(norm)) return;
+      seenNorm.add(norm);
+      words.push(w);
+    });
+  });
+  return words;
+}
+function ldGetState(deckKey, lineIdx, lines){
+  const key = ldTaskKey(deckKey, lineIdx);
+  if(!lineDecodeSb[key]){
+    const line = lines[lineIdx];
+    const targetWords = sbTokenize(line.natural);
+    const decoyPool = ldCollectDecoyCandidates(lines, lineIdx, targetWords);
+    const shuffledDecoys = decoyPool.sort(()=>Math.random()-0.5).slice(0, SB_DECOY_COUNT);
+    const items = [
+      ...targetWords.map((w,idx)=>({type:"real", idx, word:w})),
+      ...shuffledDecoys.map(w=>({type:"decoy", word:w}))
+    ];
+    const alreadyDone = !!ldDoneMap()[key];
+    lineDecodeSb[key] = {
+      targetWords, items,
+      pool: alreadyDone ? [] : sbShuffled(items.length),
+      answer: alreadyDone ? targetWords.map((_,i)=>i) : [],
+      wrongFlash: null
+    };
+  }
+  return lineDecodeSb[key];
+}
+function ldPlace(kind, idx, lineIdx, itemIdx){
+  const { deckKey, lines, reopen } = ldDeckInfo(kind, idx);
+  const st = ldGetState(deckKey, lineIdx, lines);
+  const it = st.items[itemIdx];
+  st.wrongFlash = null;
+  if(it.type==="real" && it.idx === st.answer.length){
+    st.answer.push(itemIdx);
+    const pos = st.pool.indexOf(itemIdx);
+    if(pos!==-1) st.pool.splice(pos,1);
+    if(st.answer.length === st.targetWords.length){
+      ldDoneMap()[ldTaskKey(deckKey,lineIdx)] = true;
+      saveState();
+    }
+  } else {
+    st.wrongFlash = itemIdx;
+  }
+  reopen();
+}
+function ldUndo(kind, idx, lineIdx){
+  const { deckKey, lines, reopen } = ldDeckInfo(kind, idx);
+  const st = ldGetState(deckKey, lineIdx, lines);
+  if(st.answer.length===0) return;
+  const itemIdx = st.answer.pop();
+  st.pool.push(itemIdx);
+  delete ldDoneMap()[ldTaskKey(deckKey,lineIdx)];
+  saveState();
+  reopen();
+}
+function ldReset(kind, idx, lineIdx){
+  const { deckKey, reopen } = ldDeckInfo(kind, idx);
+  delete lineDecodeSb[ldTaskKey(deckKey, lineIdx)];
+  delete ldDoneMap()[ldTaskKey(deckKey, lineIdx)];
+  saveState();
+  reopen();
+}
+function renderLineDecodeTask(kind, idx, lineIdx, line, extraHtml){
+  const { deckKey, lines } = ldDeckInfo(kind, idx);
+  const st = ldGetState(deckKey, lineIdx, lines);
+  const done = st.answer.length === st.targetWords.length;
+  const answerHtml = st.targetWords.map((w,i)=>{
+    const itemIdx = st.answer[i];
+    const filled = itemIdx!==undefined;
+    const label = filled ? st.items[itemIdx].word : "";
+    return `<span class="sb-slot ${filled?'filled':''}">${label||"&nbsp;"}</span>`;
+  }).join(" ");
+  const poolHtml = st.pool.map(itemIdx=>{
+    const it = st.items[itemIdx];
+    const label = it.word;
+    const spoken = label.replace(/^[„"“”'(]+/,'').replace(/[.,!?;:„"“”')]+$/,'').replace(/'/g,"\\'");
+    const wrong = st.wrongFlash===itemIdx ? " sb-wrong" : "";
+    return `<button type="button" class="sb-chip${wrong}" onclick="event.stopPropagation(); speakDe('${spoken}',this); ldPlace('${kind}',${idx},${lineIdx},${itemIdx})">${label}</button>`;
+  }).join("");
+  return `<div class="story-line">${extraHtml||""}
+    <div class="bis-line"><span class="num">${lineIdx+1}.</span>${speakBtnIt(line.it)} ${line.it}<span class="bis-pron">${line.pron || ''}</span></div>
+    <div class="sb-task ${done?'sb-done':''}" style="margin-top:8px;">
+      <div class="sb-answer">${answerHtml}</div>
+      <div class="sb-pool">${poolHtml}</div>
+      <div class="sb-actions">
+        <button type="button" class="sb-btn-undo" onclick="ldUndo('${kind}',${idx},${lineIdx})">↩ Zurück</button>
+        <button type="button" class="sb-btn-reset" onclick="ldReset('${kind}',${idx},${lineIdx})">🔄 Neu mischen</button>
+        ${done ? '<span class="sb-check">✅ Richtig!</span>' : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===================== STORYS RENDERN ===================== */
+function renderStoryList(){
+  const el = document.getElementById("storysList");
+  if(!el) return;
+  el.innerHTML = `<div class="card">
+      <h2>📖 Storys — Zeile für Zeile dekodieren</h2>
+      <p>Höre dir jede italienische Zeile an und baue dann selbst die deutsche Übersetzung aus einzelnen Wörtern zusammen (Achtung — ein paar falsche Wörter sind mit im Pool). So verknüpft dein Gehirn aktiv Klang und Bedeutung, statt nur eine fertige Übersetzung zu lesen.</p>
+    </div>
+    <div class="lesson-grid">` +
+    STORIES_DATA.map((s,i)=>{
+      const doneCount = ldDoneCount("story"+i, s.lines.length);
+      return `
+      <div class="lesson-tile" onclick="openStory(${i})">
+        <div class="num">Story ${i+1}</div>
+        <h4>${s.titleDe || s.title}</h4>
+        <div class="sub">${s.lines.length} Zeilen</div>
+        <div class="small" style="margin-top:4px;">${doneCount}/${s.lines.length} Zeilen dekodiert</div>
+      </div>`;
+    }).join("") +
+    `</div>`;
+}
+function openStory(i){
+  const s = STORIES_DATA[i];
+  const el = document.getElementById("storysList");
+  let html = `<div class="card">
+    <span class="backlink" onclick="renderStoryList()">← alle Storys</span>
+    <h2>${s.titleDe || s.title}</h2>
+    <p class="small">Höre dir jede italienische Zeile an und tippe dann die Wörter in der richtigen Reihenfolge an, um die deutsche Übersetzung selbst zusammenzubauen. Achtung — ein paar falsche Wörter sind mit im Pool.</p>
+    <p class="sb-progress"><b>${ldDoneCount("story"+i, s.lines.length)} von ${s.lines.length} Zeilen dekodiert</b></p>`;
+  s.lines.forEach((line, idx)=>{
+    html += renderLineDecodeTask("story", i, idx, line);
+  });
+  html += `</div>`;
+  el.innerHTML = html;
+  window.scrollTo(0,0);
+}
+
 /* ===================== LEKTIONEN RENDERN ===================== */
 function renderLessonList(){
   const box = document.getElementById("lessonList");
@@ -11568,18 +11903,19 @@ function wendNextQuizCard(){
 function renderLieder(){
   const box = document.getElementById("liederList");
   if(!box) return;
-  box.innerHTML = LIEDER_DATA.map(song=>`
+  box.innerHTML = `<div class="card">
+      <h2>🎵 Lieder — Zeile für Zeile dekodieren</h2>
+      <p>Traditionelle italienische Kinder- und Volkslieder. Höre dir jede Zeile an und baue dann selbst die deutsche Übersetzung aus einzelnen Wörtern zusammen (Achtung — ein paar falsche Wörter sind mit im Pool).</p>
+    </div>` +
+    LIEDER_DATA.map((song,i)=>{
+      const doneCount = ldDoneCount("lied"+i, song.lines.length);
+      return `
     <div class="card">
       <h3>${song.title}</h3>
-      ${song.lines.map(line=>`
-        <div class="natural-line">
-          <div class="decode-row">
-            ${line.decode.map(([w,g])=>`<div class="decode-word"><span class="w">${w}</span><span class="g">${g}</span></div>`).join("")}
-          </div>
-          <div class="pron-line">${speakBtnIt(line.it)} <code>${line.pron}</code></div>
-          <div>→ ${line.natural}</div>
-        </div>`).join("")}
-    </div>`).join("");
+      <p class="sb-progress"><b>${doneCount} von ${song.lines.length} Zeilen dekodiert</b></p>
+      ${song.lines.map((line,idx)=>renderLineDecodeTask("lied", i, idx, line)).join("")}
+    </div>`;
+    }).join("");
 }
 
 /* ===================== ANWENDEN: Lückensätze ===================== */
