@@ -1069,7 +1069,7 @@ nav.zone-nav button{font-family:inherit;}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.39.0</div>
+  <div class="version-tag">v0.39.1</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -14017,7 +14017,7 @@ function gMemFlip(idx){
   }
   renderGames();
 }
-function gNorm(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9ß]/g, ""); }
+function gNorm(s){ return String(s || "").toLowerCase().replace(/ß/g, "ss").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, ""); }
 function gTypCheck(){
   if(gm.type !== "typ" || gm.state !== "ask") return;
   const inp = document.getElementById("typInput");
