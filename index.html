@@ -28,7 +28,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google" content="notranslate">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://visitor-badge.laobi.icu; connect-src 'self' https://formspree.io https://*.workers.dev https://*.googleapis.com https://accounts.google.com https://*.firebaseapp.com https://www.gstatic.com; frame-src https://accounts.google.com https://*.firebaseapp.com https://apis.google.com; form-action 'self' https://formspree.io; base-uri 'self'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://formspree.io https://*.workers.dev https://*.googleapis.com https://accounts.google.com https://*.firebaseapp.com https://www.gstatic.com; frame-src https://accounts.google.com https://*.firebaseapp.com https://apis.google.com; form-action 'self' https://formspree.io; base-uri 'self'; object-src 'none';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Italienisch lebendig lernen — inspiriert von Birkenbihl</title>
 <meta name="description" content="Italienisch spielerisch lernen: Vokabeln, Dialoge, Aussprache und Bestenliste — inspiriert von der Birkenbihl-Lernphilosophie. Kostenlos starten.">
@@ -80,7 +80,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, deleteDoc,
-  collection, query, orderBy, limit, getDocs, serverTimestamp
+  collection, query, orderBy, limit, getDocs, serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const resolveFbReady = window.__resolveFbReady;
@@ -116,6 +116,7 @@ try{
       signOut: () => signOut(auth),
       docGet: (col, id) => getDoc(doc(db, col, id)),
       docSet: (col, id, data) => setDoc(doc(db, col, id), data),
+      docCount: (col, id) => setDoc(doc(db, col, id), { count: increment(1) }, { merge: true }),
       docDelete: (col, id) => deleteDoc(doc(db, col, id)),
       serverTimestamp: () => serverTimestamp(),
       queryTopDesc: (col, field, limitN) => getDocs(query(collection(db, col), orderBy(field, "desc"), limit(limitN)))
@@ -1061,15 +1062,10 @@ nav.zone-nav button{font-family:inherit;}
 
 <footer>
   <p class="small">Italienisch Lebendig · Inspiriert von der Birkenbihl-Lernphilosophie</p>
-  <div style="margin:8px 0;">
-    <img src="https://visitor-badge.laobi.icu/badge?page_id=flamrolas.italienisch-lernen&left_text=Besucher"
-         alt="Besucherzähler" style="height:20px; vertical-align:middle;"
-         onerror="this.style.display='none'">
-  </div>
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.36.1</div>
+  <div class="version-tag">v0.37.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -1106,7 +1102,7 @@ nav.zone-nav button{font-family:inherit;}
     Einwilligung nach § 25 TTDSG erforderlich.</p>
     <p><strong>7. Speicherdauer</strong><br>Konto- und Fortschrittsdaten werden gespeichert, bis du dein Konto löschen lässt.
     Bestenlisten-Einträge werden bei Deaktivierung sofort gelöscht.</p>
-    <p><strong>8. Besucherzähler</strong><br>Im Footer wird ein Besucherzähler-Bild vom externen Dienst visitor-badge.laobi.icu eingebunden. Beim Laden wird dabei deine IP-Adresse an diesen Anbieter übertragen. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p>
+    <p><strong>8. Anonyme Besucherzählung</strong><br>Bei jedem Seitenaufruf wird in unserer Firestore-Datenbank (Google Ireland Limited / Google LLC) ein anonymer Tageszähler um 1 erhöht. Es werden keine IP-Adresse, keine Kennung und keine Profildaten gespeichert, und auf deinem Gerät wird dafür nichts abgelegt. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Interesse an einer groben Reichweitenmessung).</p>
     <p>Dies ist eine allgemeine Vorlage, keine Rechtsberatung.</p>
   </div>
 </div>
@@ -13354,5 +13350,22 @@ fxMuteBtn();
 zoneRender("start");
 renderToday();
 
+</script>
+<script>
+/* Anonymer Seitenaufruf-Zähler (nur Zahl pro Tag in der eigenen Firestore-Datenbank, nichts auf dem Gerät gespeichert).
+   Eigene Besuche ausschließen: einmal die Seite mit ?owner=1 öffnen (merkt sich das nur auf diesem Gerät), ?owner=0 hebt es auf. */
+(function(){
+  try{
+    var p = new URLSearchParams(location.search);
+    if(p.get("owner") === "1") localStorage.setItem("visit_owner", "1");
+    if(p.get("owner") === "0") localStorage.removeItem("visit_owner");
+    if(localStorage.getItem("visit_owner") === "1") return;
+    var day = new Date().toISOString().slice(0,10);
+    window.FB.ready.then(function(){
+      if(!window.FB.db || !window.FB.docCount) return;
+      window.FB.docCount("visits", day).catch(function(){});
+    });
+  }catch(e){}
+})();
 </script>
 </body></html>
