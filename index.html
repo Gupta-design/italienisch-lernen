@@ -620,6 +620,7 @@ footer a:hover{color:var(--ink);}
 </div>
 
 <style id="fx-style">
+#view-start:not(.show-about) > :not(#todayBox){display:none;}
 /* ===== v0.36.0: Zonen-Navigation, Heute, Lernpfad, Hör-Studio, Reise-Karte, Effekte ===== */
 :root{--zone:#7b5ea7; --zone-soft:rgba(123,94,167,.12);}
 body[data-zone="heute"]{--zone:#7b5ea7; --zone-soft:rgba(123,94,167,.12);}
@@ -1070,7 +1071,7 @@ nav.zone-nav button{font-family:inherit;}
   <p class="small"><a href="#" onclick="event.preventDefault(); document.getElementById('modalImpressum').style.display='flex'">Impressum</a> ·
   <a href="#" onclick="event.preventDefault(); document.getElementById('modalDatenschutz').style.display='flex'">Datenschutz</a></p>
   <p class="small">© 2026 Dirk Schnettler · Alle Rechte vorbehalten</p>
-  <div class="version-tag">v0.40.0</div>
+  <div class="version-tag">v0.41.0</div>
 </footer>
 
 <div class="modal-overlay" id="modalImpressum" style="display:none;">
@@ -13694,7 +13695,7 @@ function revTodayExtra(){
   const box = document.getElementById("todayBox");
   if(!box) return;
   const T = REV_CFG.tx, due = srsDue().length, s = wkStats(wkGet(), true);
-  box.innerHTML += `
+  window.todayMoreHtml = (window.todayMoreHtml || "") + `
   <div class="card rev-today">
     <div><b>🔁 ${T.title}</b><span>${due ? due + " " + T.due : T.none} · ${srsMastered()} ${T.mastered}</span></div>
     <button onclick="showView('wiederholen')">${due ? "Los" : "✓"}</button>
@@ -13920,7 +13921,7 @@ function gTodayExtra(){
     </div>`;
   }
   h += `<div class="card g-card g-row"><div><b>🎮 ${T.gamesT}</b><div class="g-sub">${T.gamesD}</div></div><button onclick="G.go('spiele')">${T.go}</button></div>`;
-  box.innerHTML += h;
+  window.todayMoreHtml = (window.todayMoreHtml || "") + h;
 }
 const _gTodayOrig = renderToday;
 window.renderToday = function(){
@@ -14100,6 +14101,151 @@ function gOnView(name){
   const el = document.getElementById("view-" + name);
   if(name === "spiele" && el && el.classList.contains("active")) renderGames();
 }
+
+</script>
+<script>
+/* ============ STRUKTUR v0.41.0: geführter Start, „Weiter geht's“, 4 Bereiche ============ */
+const S_TX_DE = {
+  startT:"Hier starten", startS:"In drei kleinen Schritten legst du los.", step1:"So lernst du (1 Minute)", step2:"Lektion 1 machen", step3:"10 Wörter üben",
+  go:"Los", skip:"Ich kenne mich aus — überspringen",
+  methodT:"So funktioniert's",
+  methodL:["<b>Dekodieren:</b> Jedes Wort wird einzeln übersetzt — so siehst du, wie die Sprache denkt.","<b>Aktiv hören:</b> Lies mit und sprich laut nach.","<b>Passiv hören:</b> Lass die Sprache nebenbei laufen.","<b>Anwenden:</b> Bau eigene Sätze und sprich mit echten Menschen."],
+  readyT:"Du bist startklar!", readyS:"Ab jetzt zeigt dir „Weiter geht's“ jeden Tag den nächsten Schritt.",
+  nextT:"Weiter geht's", nRevT:"{n} Wörter wiederholen", nRevS:"Kurz auffrischen, damit sie bleiben.", nUndT:"Lektion {n}: {title}", nUndS:"Baue die Sätze Wort für Wort.",
+  nLisT:"Lektion {n} anhören", nLisS:"Einmal bewusst zuhören.", nPraT:"Üben: {x}/{y} richtige Aufgaben", nPraS:"Karteikarten, Quiz oder Lückensätze.",
+  nDoneT:"Tagesplan geschafft! 🎉", nDoneS:"Wenn du magst: ein Spiel oder das Wort des Tages.", play:"Spielen",
+  pU:"Verstehen", pL:"Hören", pP:"Üben", more:"Mehr für heute", about:"Über diese App"
+};
+const S = {
+  tx: ()=>S_TX_DE,
+  zoneLearn: "🧭 Lernen",
+  greet: h=>h < 12 ? "Buongiorno" : (h < 18 ? "Buon pomeriggio" : "Buonasera"),
+  go: n=>showView(n),
+  goLesson: id=>goToLesson(id),
+  goLessonCall: id=>`goToLesson(${id})`
+};
+/* ---------- Struktur: geführter Start, „Weiter geht's“, aufgeräumte Heute-Seite, 4 Bereiche ---------- */
+(function(){
+  try{
+    const st = document.createElement("style");
+    st.textContent = `
+#view-start:not(.show-about) > :not(#todayBox){display:none;}
+.s-hello{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 2px 10px;}
+.s-hello h2{margin:0;font-size:1.25rem;}
+.s-hero{padding:22px 18px;border-radius:16px;border:2px solid var(--zone,#c1502e);background:var(--zone-soft,rgba(193,80,46,.1));}
+.s-hero h3{margin:0 0 4px;font-size:1.3rem;}
+.s-hero .s-sub{margin:0 0 14px;opacity:.8;}
+.s-big{font-size:1.15rem;padding:13px 26px;border-radius:12px;font-weight:700;cursor:pointer;}
+.s-steps{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px;}
+.s-steps li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.65);border:1px solid rgba(0,0,0,.08);}
+.s-steps li.done{opacity:.6;} .s-steps li.now{border-color:var(--zone,#c1502e);box-shadow:0 0 0 2px var(--zone-soft,rgba(193,80,46,.2));}
+.s-num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--zone,#c1502e);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.s-pills{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px;}
+.s-pill{padding:5px 12px;border-radius:999px;background:rgba(0,0,0,.06);font-size:.88rem;}
+.s-pill.on{background:#dff3e0;color:#25602d;}
+.s-more{margin-top:14px;} .s-more > summary{cursor:pointer;font-weight:700;padding:8px 2px;}
+.s-link{background:none;border:none;color:inherit;opacity:.7;text-decoration:underline;cursor:pointer;font-size:.9rem;padding:6px 2px;}
+.s-meth li{margin:6px 0;text-align:left;}
+`;
+    (document.head || document.documentElement).appendChild(st);
+  }catch(e){}
+})();
+
+/* ---------- 4 Bereiche statt 5 ---------- */
+(function(){
+  try{
+    const idOf = v=>v[0];
+    const rank = (list)=>(a,b)=>{ const ia = list.indexOf(idOf(a)), ib = list.indexOf(idOf(b)); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); };
+    const learn = ZONES.find(z=>z.id === "verstehen"), listen = ZONES.find(z=>z.id === "hoeren"), practice = ZONES.find(z=>z.id === "ueben");
+    if(learn && listen){
+      learn.views = learn.views.concat(listen.views).sort(rank(["lektionen","hoeren","storys","geschichten","lieder","methode","aussprache","grammatik"]));
+      learn.label = S.zoneLearn;
+      ZONES.splice(ZONES.indexOf(listen), 1);
+    }
+    if(practice) practice.views.sort(rank(["wortschatz","wiederholen","wendungen","anwenden","quiz","spiele"]));
+  }catch(e){ console.log("zones", e && e.message); }
+})();
+
+/* ---------- Hilfen ---------- */
+function sOb(){ state.ob = state.ob || {}; return state.ob; }
+function sMarked(){ return Object.keys(state.words || {}).filter(k=>state.words[k]).length; }
+function sObSteps(){
+  const ob = sOb(), l1 = !!(state.lessonsDone || {})[1];
+  return [{done: !!ob.method || l1}, {done: l1}, {done: sMarked() >= 10}];
+}
+const _sRevNext = revNext;
+window.revNext = function(){
+  const was = revActive;
+  _sRevNext();
+  if(was && !revActive){ state.revDate = todayStr(); fxPersist(); }
+};
+function sMethod(){
+  const T = S.tx();
+  fxCelebrate({icon:"🧠", title:T.methodT, confetti:false, sound:"click",
+    html:`<ol class="s-meth" style="padding-left:20px;">${T.methodL.map(x=>`<li>${x}</li>`).join("")}</ol>`,
+    afterShow:()=>{ sOb().method = 1; fxPersist(); try{ renderToday(); }catch(e){} }});
+}
+function sSkip(){ state.obDone = 1; fxPersist(); renderToday(); }
+function sStepGo(i){
+  if(i === 0) sMethod();
+  else if(i === 1) S.goLesson(1);
+  else S.go("wortschatz");
+}
+function sNext(){
+  const T = S.tx(), p = planGet(), due = srsDue().length, nl = nextLessonId(), nlObj = nl ? LESSONS.find(x=>x.id === nl) : null;
+  const last = [...LESSONS].reverse().find(x=>(state.lessonsDone || {})[x.id]);
+  const listenId = nl || (last ? last.id : 1);
+  const uDone = p.understand >= PLAN_UNDERSTAND_GOAL, pDone = p.practice >= PLAN_PRACTICE_GOAL;
+  if(due > 0 && state.revDate !== todayStr()) return {t:T.nRevT.replace("{n}", due), s:T.nRevS, b:T.go, c:"S.go('wiederholen')"};
+  if(!uDone) return {t:T.nUndT.replace("{n}", nl || 1).replace("{title}", nlObj ? nlObj.title : ""), s:T.nUndS, b:T.go, c:S.goLessonCall(nl || 1)};
+  if(!p.listen) return {t:T.nLisT.replace("{n}", listenId), s:T.nLisS, b:T.go, c:`hoerStart(${listenId})`};
+  if(!pDone) return {t:T.nPraT.replace("{x}", Math.min(p.practice, PLAN_PRACTICE_GOAL)).replace("{y}", PLAN_PRACTICE_GOAL), s:T.nPraS, b:T.go, c:"todayPractice()"};
+  return {t:T.nDoneT, s:T.nDoneS, b:T.play, c:"S.go('spiele')"};
+}
+function sBuildToday(){
+  const box = document.getElementById("todayBox");
+  if(!box) return;
+  const T = S.tx();
+  const steps = sObSteps(), allDone = steps.every(s=>s.done);
+  if(!state.obInit){
+    state.obInit = 1;
+    if(allDone || (lessonsDoneCount() >= 1 && sMarked() >= 10)) state.obDone = 1;
+    fxPersist();
+  }
+  if(!state.obDone && allDone){
+    state.obDone = 1; fxPersist();
+    fxCelebrate({icon:"🚀", title:T.readyT, sub:T.readyS, sound:"complete"});
+  }
+  const li = levelInfo(), p = planGet();
+  const h = new Date().getHours();
+  const pr = (typeof loadProfile === "function") ? loadProfile() : null;
+  const nm = pr && pr.name ? ", " + lpEsc(pr.name) : "";
+  let html = `<div class="s-hello"><h2>${S.greet(h)}${nm}!</h2>
+    <div class="today-chips"><span class="chip-pill" title="Streak">🔥 ${state.streak || 0}</span><span class="chip-pill">Level ${li.level}</span><span class="chip-pill">⭐ ${totalStars()}</span></div></div>`;
+  if(!state.obDone){
+    const now = steps.findIndex(s=>!s.done);
+    const labels = [T.step1, T.step2, T.step3];
+    html += `<div class="s-hero"><h3>🚀 ${T.startT}</h3><p class="s-sub">${T.startS}</p>
+      <ol class="s-steps">${steps.map((s, i)=>`<li class="${s.done ? "done" : (i === now ? "now" : "")}"><span class="s-num">${s.done ? "✓" : i + 1}</span><span>${labels[i]}</span></li>`).join("")}</ol>
+      <button class="s-big" onclick="sStepGo(${now < 0 ? 0 : now})">${T.go} ➜</button>
+      <p><button class="s-link" onclick="sSkip()">${T.skip}</button></p></div>`;
+  } else {
+    const n = sNext();
+    const uDone = p.understand >= PLAN_UNDERSTAND_GOAL, pDone = p.practice >= PLAN_PRACTICE_GOAL;
+    html += `<div class="s-hero"><h3>➜ ${T.nextT}</h3><p style="margin:0 0 2px;font-size:1.1rem;"><b>${n.t}</b></p><p class="s-sub">${n.s}</p>
+      <button class="s-big" onclick="${n.c}">${n.b}</button>
+      <div class="s-pills"><span class="s-pill${uDone ? " on" : ""}">${uDone ? "✓" : "○"} ${T.pU}</span><span class="s-pill${p.listen ? " on" : ""}">${p.listen ? "✓" : "○"} ${T.pL}</span><span class="s-pill${pDone ? " on" : ""}">${pDone ? "✓" : "○"} ${T.pP}</span></div></div>`;
+    if(window.todayMoreHtml) html += `<details class="s-more" ${window.sMoreOpen ? "open" : ""} ontoggle="window.sMoreOpen=this.open"><summary>${T.more}</summary>${window.todayMoreHtml}</details>`;
+  }
+  html += `<p class="s-about"><button class="s-link" onclick="document.getElementById('view-start').classList.toggle('show-about')">ℹ️ ${T.about}</button></p>`;
+  box.innerHTML = html;
+}
+const _sTodayOrig = renderToday;
+window.renderToday = function(){
+  window.todayMoreHtml = "";
+  _sTodayOrig();
+  try{ sBuildToday(); }catch(e){ console.log("s-today", e && e.message); }
+};
 
 </script>
 <script>
